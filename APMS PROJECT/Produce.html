@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produce - Agricultural Produce Management System</title>
+  <link rel="stylesheet" href="Homepage.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="APMS Logo.png" alt="Logo">
+      <span>APMS</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="Homepage.html">Dashboard</a></li>
+      <li><a href="#" class="active">Produce</a></li>    
+      <li><a href="Sales.html">Sales</a></li>
+      <li><a href="Reports.html">Reports</a></li>
+    </ul>
+    <!--Dropdown menu hidden at user icon -->
+    <div class="user-profile">
+      <img src="User Icon.png" alt="User Icon.png" class="user-icon">
+      <div class="dropdown-menu">
+        <a href="Account.html">Account</a>
+        <a href="Notifications.html">Notifications</a>
+        <a href="Settings.html">Settings</a>
+        <a href="Help.html">Help</a>
+        <a href="Login.html">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Produce Section -->
+  <main class="produce">
+    <header class="produce-header">
+      <h1>Produce</h1>
+      <p>Manage your farm produce efficiently with APMS.</p>
+    </header>
+
+    <!-- Produce Overview Section -->
+    <section class="produce-overview">
+      <h2>Dashboard Overview</h2>
+      <p>Total Inventory: 5000 kg</p>
+      <p>Recent Harvest: 100 kg of tomatoes</p>
+    </section>
+
+    <!-- Produce Entry Section -->
+    <section class="produce-entry">
+      <h2>Produce Entry</h2>
+      <form id="produce-entry-form">
+        <div class="input-group">
+          <label for="produce-type">Type</label>
+          <input type="text" id="produce-type" name="produce-type" required>
+        </div>
+        <div class="input-group">
+          <label for="produce-quantity">Quantity</label>
+          <input type="number" id="produce-quantity" name="produce-quantity" required>
+        </div>
+        <div class="input-group">
+          <label for="harvest-date">Harvest Date</label>
+          <input type="date" id="harvest-date" name="harvest-date" required>
+        </div>
+        <div class="input-group">
+          <label for="storage-location">Storage Location</label>
+          <input type="text" id="storage-location" name="storage-location" required>
+        </div>
+        <div class="input-group">
+          <label for="expected-sale-date">Expected Sale Date</label>
+          <input type="date" id="expected-sale-date" name="expected-sale-date" required>
+        </div>
+        <div class="input-group">
+          <label for="produce-category">Category</label>
+          <select id="produce-category" name="produce-category" required>
+            <option value="grain">Grain</option>
+            <option value="fruit">Fruit</option>
+            <option value="vegetable">Vegetable</option>
+            <option value="tuber">Tuber</option>
+          </select>
+        </div>
+        <button type="submit">Add Produce</button>
+      </form>
+    </section>
+
+    <!-- Inventory Management Section -->
+    <section class="inventory-management">
+      <h2>Inventory Management</h2>
+      <p>Track harvested produce, assign storage spaces, monitor storage conditions, and receive alerts for low stock or approaching expiration.</p>
+    </section>
+
+    <!-- Planting Management Section -->
+    <section class="planting-management">
+      <h2>Planting Management</h2>
+      <p>Manage notifications on planting, weeding, and crop care such as fumigation.</p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
+  </footer>
+
+  <!-- Link to JavaScript File -->
+  <script src="Produce.js"></script>
+</body>
+</html>
+
