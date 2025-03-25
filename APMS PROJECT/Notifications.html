@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications Module</title>
+    <link rel="stylesheet" href="Homepage.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .notification {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .notification h2 {
+            margin: 0 0 10px;
+        }
+        .notification-list {
+            list-style: none;
+            padding: 0;
+        }
+        .notification-list li {
+            margin: 5px 0;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-container h2 {
+            font-size: 1.5rem;
+            color: #2E8B57; /* Green */
+            margin-bottom: 10px;
+        }
+        .form-container button {
+            background-color: #2E8B57; /* Green */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .form-container button:hover {
+            background-color: #3CB371; /* Lighter Green */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+          <img src="APMS Logo.png" alt="Logo">
+          <span>APMS</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="Homepage.html">Dashboard</a></li>
+          <li><a href="Produce.html">Produce</a></li>    
+          <li><a href="Sales.html">Sales</a></li>
+          <li><a href="Reports.html">Reports</a></li>
+        </ul>
+        <!--Dropdown menu hidden at user icon -->
+        <div class="user-profile">
+          <img src="User Icon.png" alt="User Icon.png" class="user-icon">
+          <div class="dropdown-menu">
+            <a href="Account.html">Account</a>
+            <a href="Notifications.html">Notifications</a>
+            <a href="Settings.html">Settings</a>
+            <a href="Help.html">Help</a>
+            <a href="Login.html">Logout</a>
+          </div>
+        </div>
+      </nav>
+      
+    
+
+    <div class="form-container produce-card">
+        <h2>Recent Notifications:</h2>
+        <ul id="recent-notifications" class="notification-list">
+            <li>No recent notifications</li>
+        </ul>
+    </div>
+    <br>
+
+
+    <h1 class="produce-header">Notifications Preferences</h1>
+
+    <div class="form-container">
+        <h2>Notify me when:</h2>
+        <form id="notification-form">
+            <ul class="notification-list">
+                <li><input type="checkbox" id="sale" name="notification" value="A sale is made"><label for="sale">A sale is made</label></li>
+                <li><input type="checkbox" id="harvest" name="notification" value="Harvesting season reminder"><label for="harvest">Harvesting season reminder</label></li>
+                <li><input type="checkbox" id="inventory" name="notification" value="Low Inventory"><label for="inventory">Low Inventory</label></li>
+                <li><input type="checkbox" id="spoil" name="notification" value="Crops near spoil"><label for="spoil">Crops near spoil</label></li>
+                <li><input type="checkbox" id="sale-date" name="notification" value="Scheduled sale date"><label for="sale-date">Scheduled sale date</label></li>
+                <li><input type="checkbox" id="payments" name="notification" value="Reminders to make payments"><label for="payments">Reminders to make payments</label></li>
+            </ul>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="form-container">
+        <h2>Modes of notification:</h2>
+        <form id="mode-form">
+            <ul class="notification-list">
+                <li><input type="checkbox" id="email" name="mode" value="Email"><label for="email">Email</label></li>
+                <li><input type="checkbox" id="sms" name="mode" value="SMS"><label for="sms">SMS</label></li>
+            </ul>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div class="form-container">
+        <h2>Selected Notifications:</h2>
+        <form id="selected-notifications-form">
+            <ul id="selected-notifications" class="notification-list">
+                <li>No notifications selected</li>
+            </ul>
+            <button type="submit">Refresh</button>
+        </form>
+    </div>
+
+    <script>
+        const recentNotifications = [];
+
+        document.getElementById('notification-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const selectedNotifications = document.querySelectorAll('input[name="notification"]:checked');
+            const notificationList = document.getElementById('selected-notifications');
+            notificationList.innerHTML = '';
+
+            if (selectedNotifications.length === 0) {
+                notificationList.innerHTML = '<li>No notifications selected</li>';
+            } else {
+                selectedNotifications.forEach(notification => {
+                    const li = document.createElement('li');
+                    li.textContent = notification.value;
+                    notificationList.appendChild(li);
+                    recentNotifications.push(notification.value);
+                });
+                updateRecentNotifications();
+            }
+        });
+
+        document.getElementById('mode-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const selectedModes = document.querySelectorAll('input[name="mode"]:checked');
+            const notificationList = document.getElementById('selected-notifications');
+            const existingNotifications = notificationList.innerHTML;
+
+            if (selectedModes.length === 0) {
+                alert('Please select at least one mode of notification.');
+            } else {
+                const modes = Array.from(selectedModes).map(mode => mode.value).join(', ');
+                const li = document.createElement('li');
+                li.textContent = `Notification modes: ${modes}`;
+                notificationList.innerHTML = existingNotifications + li.outerHTML;
+                recentNotifications.push(`Notification modes: ${modes}`);
+                updateRecentNotifications();
+            }
+        });
+
+        document.getElementById('selected-notifications-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Refresh logic can be added here if needed
+        });
+
+        function updateRecentNotifications() {
+            const recentList = document.getElementById('recent-notifications');
+            recentList.innerHTML = '';
+            if (recentNotifications.length === 0) {
+                recentList.innerHTML = '<li>No recent notifications</li>';
+            } else {
+                recentNotifications.forEach(notification => {
+                    const li = document.createElement('li');
+                    li.textContent = notification;
+                    recentList.appendChild(li);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

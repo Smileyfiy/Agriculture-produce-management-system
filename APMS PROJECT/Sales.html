@@ -34,7 +34,83 @@
     </div>
   </div>
 </nav>
+
+<br>
+<section class="cards">
+  <div class="card">
+    <h2>Sales Activity</h2>
+    <p>Monitor all your sale activity</p>
+    <button>View Details</button>
+  </div>
+
+  <div class="card">
+    <h2>Schedule sale</h2>
+    <p>Schedule a sale date to get a reminder</p>
+    <button>Schedule</button>
+</section>
+<br>
+
+
+<!-- Sale Entry Section -->
+<section class="produce-entry">
+  <header class="produce-header">
+    <h2>Sale Entry</h2>
+    <p>Enter details of sales made</p>
+  </header>
   
+  <form id="produce-entry-form" class="produce-entry-form">
+    <div class="input-group">
+      <label for="produce-id">Produce ID</label>
+      <input type="number" id="produce-id" name="produce-id" required>
+    </div>
+
+    <div class="input-group">
+      <label for="produce-type">Type</label>
+      <input type="text" id="produce-type" name="produce-type" required>
+    </div>
+
+    <div class="input-group">
+      <label for="produce-quantity">Quantity</label>
+      <input type="number" id="produce-quantity" name="produce-quantity" required>
+    </div>
+
+    <div class="input-group">
+      <label for="sale-date">Sale Date</label>
+      <input type="date" id="sale-date" name="sale-date" required>
+    </div>
+
+    <div class="input-group">
+      <label for="sale-price">Sale Price</label>
+      <input type="number" id="sale-price" name="sale-price" required>
+    </div>
+
+    <div class="input-group">
+      <label for="buyer-name">Buyer Name</label>
+      <input type="text" id="buyer-name" name="buyer-name" required>
+    </div>
+
+    <div class="input-group">
+      <label for="buyer-contact">Buyer Contact</label>
+      <input type="text" id="buyer-contact" name="buyer-contact" required>
+    </div>
+
+    <div class="input-group">
+      <label for="produce-category">Category</label>
+      <select id="produce-category" name="produce-category" required>
+        <option value="grain">Grain</option>
+        <option value="fruit">Fruit</option>
+        <option value="vegetable">Vegetable</option>
+        <option value="tuber">Tuber</option>
+      </select>
+    </div>
+    <br>
+    <button type="submit">Add Sale</button>
+  </form>
+</section>    
+</main>
+
+
+
     
 
   

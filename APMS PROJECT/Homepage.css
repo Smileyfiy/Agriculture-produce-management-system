@@ -145,8 +145,8 @@ body {
     margin-bottom: 30px;
   }
   
-  .dashboard-header h1 {
-    font-size: 2.5rem;
+  .dashboard-header h1 , h2 {
+    font-size: 1.5rem;
     color: #2E8B57; /* Green */
   }
   
@@ -182,7 +182,7 @@ body {
     margin: 10px 0;
   }
   
-  .card button {
+  button {
     background-color: #2E8B57; /* Green */
     color: white;
     border: none;
@@ -191,7 +191,7 @@ body {
     cursor: pointer;
   }
      
-  .card button:hover {
+  button:hover {
     background-color: #3CB371; /* Lighter Green */
   }
   
