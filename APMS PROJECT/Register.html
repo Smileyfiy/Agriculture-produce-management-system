@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Agricultural Produce Management System</title>
+  <link rel="stylesheet" href="Homepage.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h2>Register</h2>
+      <form id="register-form">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="login-button">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { registerUser } from "./auth.js";
+
+    const registerForm = document.getElementById("register-form");
+    registerForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      registerUser(email, password);
+    });
+  </script>
+</body>
+</html>
