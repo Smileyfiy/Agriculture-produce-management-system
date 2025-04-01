@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="Homepage.css">
 </head>
 <body>
-
+  
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">
@@ -27,7 +27,7 @@
       <div class="dropdown-menu">
         <a href="Account.html">Account</a>
         <a href="Notifications.html">Notifications</a>
-        <a href="Settings.html">Settings</a>
+  
         <a href="Help.html">Help</a>
         <a href="Login.html">Logout</a>
         <div class="theme">
@@ -50,23 +50,34 @@
 
     <!-- Cards Section -->
     <section class="cards">
+      <!-- Sales Activity Card -->
       <div class="card">
         <h2>Sales Activity</h2>
         <p>Monitor all your sale activity</p>
-        <button>View Details</button>
+        <button onclick="window.location.href='Sales.html'">View Details</button>
       </div>
 
+      <!-- Weather Forecast Card -->
       <div class="card">
         <h2>Weather Forecast</h2>
         <p>Get accurate weather updates for your location.</p>
-        <button>Check Weather</button>
+        <button id="check-weather-button">Check Weather</button>
       </div>
 
+      <!-- Inventory Card -->
       <div class="card">
         <h2>Inventory</h2>
         <p>View Inventory levels quickly.</p>
-        <button>Manage Inventory</button>
+        <button onclick="window.location.href='Produce.html#inventory-section'">Manage Inventory</button>
       </div>
+    </section>
+
+    <!-- Weather Display Section -->
+    <section id="weather-display" class="weather-display hidden">
+      <h2>Current Weather</h2>
+      <div id="current-weather" class="weather-card"></div>
+      <h2>7-Day Forecast</h2>
+      <div id="forecast-weather" class="forecast-cards"></div>
     </section>
 
     <!-- Recent Activity Section -->
@@ -79,7 +90,10 @@
       </ul>
       <!-- Form to Add New Activity -->
       <form id="add-activity-form">
-        <input type="text" id="activity-input" placeholder="Add new note" required>
+        <div class="input-group">
+          <input type="text" id="activity-input" placeholder="Add new note" required>
+        </div>
+        
         <button type="submit">Add</button>
       </form>
     </section>
@@ -91,7 +105,7 @@
   </footer>
 
   <!-- Link to JavaScript File -->
-  <script src="Homepage.js"></script>
-  <script src="Produce.js"></script>
+  <script src="Homepage.js" type="module"></script>
+  
 </body>
 </html>

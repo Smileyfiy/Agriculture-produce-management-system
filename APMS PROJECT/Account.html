@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agricultural Produce Management System</title>
+  <link rel="stylesheet" href="Homepage.css">
+</head>
+<body>
+  
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">
+      <img src="APMS Logo.png" alt="Logo">
+      <span>APMS</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="Homepage.html">Dashboard</a></li>
+      <li><a href="Produce.html">Produce</a></li>    
+      <li><a href="Sales.html">Sales</a></li>
+      <li><a href="Reports.html">Reports</a></li>
+    </ul>
+
+    <!--Dropdown menu hidden at user icon -->
+    <div class="user-profile">
+      <img src="User Icon.png" alt="User Icon.png" class="user-icon">
+      <div class="dropdown-menu">
+        <a href="Account.html">Account</a>
+        <a href="Notifications.html">Notifications</a>        
+        <a href="Help.html">Help</a>
+        <a href="Login.html">Logout</a>
+        <div class="theme">
+          <a href="#" class="theme-button">Theme</a>
+          <div class="dropdown-menu-theme">
+            <a href="#" class="theme-option" data-theme="light">Light</a>
+            <a href="#" class="theme-option" data-theme="dark">Dark</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- Account Section -->
+  <section class="account-section">
+    <div class="account-container">
+      <h1>My Account</h1>
+      <div class="profile-picture">
+        <img src="User Icon.png" alt="User Icon.png" class="user-icon">
+        <br>        
+        <button class="edit-picture-btn">Edit Picture</button>
+      </div>
+      <div class="account-details">
+        <form action="#" method="POST">
+          <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="johndoe@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone / Telephone:</label>
+            <input type="tel" id="phone" name="phone" value="123-456-7890" required>
+          </div>
+          <div class="form-group">
+            <label for="country">Country:</label>
+            <input type="text" id="country" name="country" value="Kenya" required>
+          </div>
+          <div class="form-group"></div>
+            <label for="county">County:</label>
+            <input type="text" id="county" name="county" value="Nairobi" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter new password">
+          </div>
+          <button type="submit" class="save-btn">Save Changes</button>
+        </form>
+        <form action="#" method="POST" style="margin-top: 20px;">
+          <button type="submit" class="save-btn" style="background-color: #dc3545;" onclick="return confirm('Are you sure you want to delete your account?');">Delete Account</button>
+        </form>
+      </div>
+    </div>
+  </section></form>
+
+  <style>
+    .account-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .account-container {
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-picture img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .edit-picture-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .edit-picture-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .account-details {
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .save-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
+  </footer>

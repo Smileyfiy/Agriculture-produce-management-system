@@ -20,15 +20,23 @@
       <li><a href="Sales.html">Sales</a></li>
       <li><a href="Reports.html">Reports</a></li>
     </ul>
+    
     <!--Dropdown menu hidden at user icon -->
     <div class="user-profile">
       <img src="User Icon.png" alt="User Icon.png" class="user-icon">
       <div class="dropdown-menu">
         <a href="Account.html">Account</a>
         <a href="Notifications.html">Notifications</a>
-        <a href="Settings.html">Settings</a>
+        
         <a href="Help.html">Help</a>
         <a href="Login.html">Logout</a>
+        <div class="theme">
+          <a href="#" class="theme-button">Theme</a>
+          <div class="dropdown-menu-theme">
+            <a href="#" class="theme-option" data-theme="light">Light</a>
+            <a href="#" class="theme-option" data-theme="dark">Dark</a>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -40,27 +48,34 @@
       <p>Manage your farm produce efficiently with APMS.</p>
     </header>
 
-    <!-- Produce Overview Section -->
     <section class="cards">
-      <div class="card produce-card">
+      <!-- Dashboard Overview Card -->
+      <div class="card produce-card" id="dashboard-overview-card">
         <h2>Dashboard Overview</h2>
-        <p>Total Inventory: 5000 kg</p>
-        <p>Recent Harvest: 100 kg of tomatoes</p>
+        <p>Click to view all produce data.</p>
       </div>
 
-      <!-- Inventory Management Section -->
-      <div class="card produce-card">
-        <h2>Inventory Management</h2>
-        <p>Track harvested produce, assign storage spaces, monitor storage conditions, and receive alerts for low stock or approaching expiration.</p>
-      </div>
-
-      <!-- Planting Management Section -->
-      <div class="card produce-card">
-        <h2>Planting Management</h2>
-        <p>Manage notifications on planting, weeding, and crop care such as fumigation.</p>
+      <!-- Total Inventory Card -->
+      <div class="card produce-card" id="total-inventory-card">
+        <h2>Total Inventory</h2>
+        <p>Loading...</p>
       </div>
     </section>
-    <br>
+
+    <!-- Section to display produce data -->
+    <section class="produce-data">
+      <h2>Produce Data</h2>
+      <div class="cards"></div>
+    </section>
+
+    <!-- Inventory Section in Produce.html -->
+    <section id="inventory-section" class="inventory">
+      <header>
+        <h2>Inventory</h2>
+        <p>Track and manage your inventory levels here.</p>
+      </header>
+      <!-- Add inventory details here -->
+    </section>
 
     <!-- Produce Entry Section -->
     <section class="produce-entry">
@@ -99,6 +114,8 @@
             <option value="tuber">Tuber</option>
           </select>
         </div>
+        <br>
+
         <button type="submit">Add Produce</button>
       </form>
     </section>    

@@ -23,24 +23,39 @@
     </ul>
 
     <!--Dropdown menu hidden at user icon -->
-  <div class="user-profile">
-    <img src="User Icon.png" alt="User Icon.png" class="user-icon">
-    <div class="dropdown-menu">
-      <a href="Account.html">Account</a>
-      <a href="Notifications.html">Notifications</a>
-      <a href="Settings.html">Settings</a>
-      <a href="Help.html">Help</a>
-      <a href="Login.html">Logout</a>
+    <div class="user-profile">
+      <img src="User Icon.png" alt="User Icon.png" class="user-icon">
+      <div class="dropdown-menu">
+        <a href="Account.html">Account</a>
+        <a href="Notifications.html">Notifications</a>
+        
+        <a href="Help.html">Help</a>
+        <a href="Login.html">Logout</a>
+        <div class="theme">
+          <a href="#" class="theme-button">Theme</a>
+          <div class="dropdown-menu-theme">
+            <a href="#" class="theme-option" data-theme="light">Light</a>
+            <a href="#" class="theme-option" data-theme="dark">Dark</a>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
 <br>
 <section class="cards">
+  <!-- Sales Activity Card -->
   <div class="card">
     <h2>Sales Activity</h2>
     <p>Monitor all your sale activity</p>
-    <button>View Details</button>
+    <a href="Sales.html" class="button">View Details</a>
+  </div>
+
+  <!-- Inventory Card -->
+  <div class="card">
+    <h2>Inventory</h2>
+    <p>View Inventory levels quickly.</p>
+    <a href="Produce.html#inventory-section" class="button">Manage Inventory</a>
   </div>
 
   <div class="card">
@@ -109,8 +124,11 @@
 </section>    
 </main>
 
+<!-- Footer -->
+<footer class="footer">
+  <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
+</footer>
 
 
-    
 
-  
+
