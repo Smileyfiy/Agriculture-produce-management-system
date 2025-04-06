@@ -54,7 +54,6 @@ h2 {
 }
 
 /* Weather Display Section */
-
 .weather-display {
   margin: 2rem auto;
   max-width: 800px;
@@ -62,38 +61,24 @@ h2 {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative; /* Ensure it stays in the normal document flow */
+  z-index: 10; /* Bring it above other elements if needed */
 }
 
-.weather-display h2 {
-  font-size: 1.8rem;
-  color: #2e8b57; /* Green */
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.weather-card {
-  background-color: #f9f9f9;
-  border-radius: 25px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
+/* Ensure the hidden class only hides the element */
 .hidden {
   display: none;
 }
 
-/* Recent Activity Section */
-.recent-activity {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Add spacing between sections */
+section {
+  margin-bottom: 2rem;
 }
 
+/* Recent Activity Section */
 .recent-activity h2 {
   font-size: 1.5rem;
-  color: #2e8b57; /* Green */
+  color: #2e8b57;
   margin-bottom: 10px;
 }
 

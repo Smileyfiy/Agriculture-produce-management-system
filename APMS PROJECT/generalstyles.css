@@ -142,7 +142,7 @@ body {
 
 h1 {
   font-size: 2.5rem;
-  color: #2e8b57; /* Green */
+  color: #2e8b57;
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -152,7 +152,7 @@ button,
 a.button {
   display: inline-block;
   border: none;
-  background-color: #2e8b57; /* Green */
+  background-color: #2e8b57;
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
@@ -164,9 +164,24 @@ a.button {
 
 a.button:hover,
 button:hover {
-  background-color: #3cb371; /* Lighter Green */
+  background-color: #3cb371;
+}
+.logoutButton {
+  color: #ff4d4d;
+  background-color: white;
+  text-align: left;
+  text-decoration: none;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 10px;
+  border: none;
+  display: block;
 }
 
+.logoutButton:hover {
+  color: #ff1a1a;
+  background-color: white;
+}
 /* Form Styles*/
 .input-group {
   margin-bottom: 1.5rem;

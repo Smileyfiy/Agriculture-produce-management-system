@@ -1,13 +1,49 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 import { app } from "./firebaseconnection.js"; // Import the initialized Firebase app
 
 const auth = getAuth(app);
+const database = getDatabase(app);
+
+// Redirect to login page if the user is not authenticated
+onAuthStateChanged(auth, (user) => {
+  const currentPath = window.location.pathname;
+
+  // Allow access to Register.html and Login.html without authentication
+  if (!user && !["/Login.html", "/Register.html"].includes(currentPath)) {
+    window.location.replace("Login.html");
+  }
+});
 
 // Handle Registration
-export async function registerUser(email, password) {
+export async function registerUser({ name, phone, email, password, country, county, farmName, farmSize, cropType }) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log("User registered:", userCredential.user);
+    const userId = userCredential.user.uid;
+
+    // Save user details to Firebase
+    const userRef = ref(database, `users/${userId}`);
+    await set(userRef, {
+      name,
+      phone,
+      email,
+      country,
+      county,
+    });
+
+    // Save optional farm details if provided
+    if (farmName && farmSize && cropType) {
+      const farmRef = push(ref(database, `farms`));
+      await set(farmRef, {
+        userId,
+        farmName,
+        country,
+        county,
+        farmSize,
+        cropType,
+      });
+    }
+
     alert("Registration successful!");
     window.location.href = "Login.html"; // Redirect to login page
   } catch (error) {
@@ -30,12 +66,31 @@ export async function loginUser(email, password) {
 }
 
 // Handle Logout
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutButton = document.getElementById("logoutButton");
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      try {
+        await logoutUser();
+      } catch (error) {
+        console.error("Error during logout:", error.message);
+        alert(error.message);
+      }
+    });
+  } else {
+    console.error("Logout button not found in the DOM.");
+  }
+});
+
 export async function logoutUser() {
+  console.log("Logout function called");
   try {
     await signOut(auth);
     console.log("User logged out");
     alert("Logout successful!");
-    window.location.href = "Login.html"; // Redirect to login page
+
+    // Redirect to the login page and replace the current history entry
+    window.location.replace("Login.html");
   } catch (error) {
     console.error("Error logging out:", error.message);
     alert(error.message);

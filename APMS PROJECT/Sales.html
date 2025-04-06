@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agricultural Produce Management System</title>
   <link rel="stylesheet" href="generalstyles.css">
+  <link rel="stylesheet" href="sales.css">
 </head>
 <body>
 
@@ -30,7 +31,7 @@
         <a href="Notifications.html">Notifications</a>
         
         <a href="Help.html">Help</a>
-        <a href="Login.html">Logout</a>
+        <button class="logoutButton" id="logoutButton">Logout</button>
        
       </div>
     </div>
@@ -67,56 +68,78 @@
     <p>Enter details of sales made</p>
   </header>
   
-  <form id="produce-entry-form" class="produce-entry-form">
+  <form id="add-sales-form">
     <div class="input-group">
-      <label for="produce-id">Produce ID</label>
-      <input type="number" id="produce-id" name="produce-id" required>
+      <label for="produce-dropdown">Select Produce</label>
+      <select id="produce-dropdown" name="produce-dropdown" required>
+        <!-- Produce options will be dynamically loaded here -->
+      </select>
     </div>
-
     <div class="input-group">
-      <label for="produce-type">Type</label>
-      <input type="text" id="produce-type" name="produce-type" required>
+      <label for="quantity-sold">Quantity Sold</label>
+      <input type="number" id="quantity-sold" name="quantity-sold" required>
     </div>
-
-    <div class="input-group">
-      <label for="produce-quantity">Quantity</label>
-      <input type="number" id="produce-quantity" name="produce-quantity" required>
-    </div>
-
     <div class="input-group">
       <label for="sale-date">Sale Date</label>
       <input type="date" id="sale-date" name="sale-date" required>
     </div>
-
     <div class="input-group">
-      <label for="sale-price">Sale Price</label>
+      <label for="sale-price">Sale Price (in KSH)</label>
       <input type="number" id="sale-price" name="sale-price" required>
     </div>
-
     <div class="input-group">
       <label for="buyer-name">Buyer Name</label>
       <input type="text" id="buyer-name" name="buyer-name" required>
     </div>
-
     <div class="input-group">
       <label for="buyer-contact">Buyer Contact</label>
       <input type="text" id="buyer-contact" name="buyer-contact" required>
     </div>
-
-    <div class="input-group">
-      <label for="produce-category">Category</label>
-      <select id="produce-category" name="produce-category" required>
-        <option value="grain">Grain</option>
-        <option value="fruit">Fruit</option>
-        <option value="vegetable">Vegetable</option>
-        <option value="tuber">Tuber</option>
-      </select>
-    </div>
-    <br>
     <button type="submit">Add Sale</button>
   </form>
 </section>    
+
+<!-- Recent Sales Section -->
+<section class="recent-sales">
+  <header class="header">
+    <h2>Recent Sales</h2>
+    <p>View details of your recent sales</p>
+  </header>
+  <div id="sales-cards-container" class="sales-cards">
+    <!-- Sales cards will be dynamically loaded here -->
+  </div>
+</section>
+
+<!-- Schedule Sale Modal -->
+<div id="schedule-sale-modal" class="modal hidden">
+  <div class="modal-content">
+    <span id="close-modal" class="close-button">&times;</span>
+    <h2>Schedule Sale</h2>
+    <form id="schedule-sale-form">
+      <div class="input-group">
+        <label for="schedule-buyer-name">Buyer Name</label>
+        <input type="text" id="schedule-buyer-name" name="schedule-buyer-name" required>
+      </div>
+      <div class="input-group">
+        <label for="schedule-buyer-contact">Buyer Contact</label>
+        <input type="text" id="schedule-buyer-contact" name="schedule-buyer-contact" required>
+      </div>
+      <div class="input-group">
+        <label for="schedule-date">Sale Date</label>
+        <input type="date" id="schedule-date" name="schedule-date" required>
+      </div>
+      <div class="input-group">
+        <label for="schedule-quantity">Amount of Produce</label>
+        <input type="number" id="schedule-quantity" name="schedule-quantity" required>
+      </div>
+      <button type="submit">Schedule Sale</button>
+    </form>
+  </div>
+</div>
+
 </main>
+<script src="auth.js" type="module"></script>
+</body>
 
 <!-- Footer -->
 <footer class="footer">

@@ -30,7 +30,7 @@
         <a href="Notifications.html">Notifications</a>
         
         <a href="Help.html">Help</a>
-        <a href="Login.html">Logout</a>
+        <button class="logoutButton" id="logoutButton">Logout</button>
        
       </div>
     </div>
@@ -38,7 +38,7 @@
 
   <!-- Produce Section -->
   <main class="produce">
-    
+
     <section class="cards">
       <!-- Dashboard Overview Card -->
       <div class="card produce-card" id="dashboard-overview-card">
@@ -49,7 +49,7 @@
       <!-- Total Inventory Card -->
       <div class="card produce-card" id="total-inventory-card">
         <h2>Total Inventory</h2>
-        <p>Loading...</p>
+        <p>No produce added yet</p>
       </div>
     </section>
 
@@ -58,15 +58,11 @@
       <h2>Produce Data</h2>
       <div class="cards"></div>
     </section>
-
     
     <!-- Produce Entry Section -->
-    <section class="produce-entry">
-      <header class="produce-header">
-        <h2>Produce Entry</h2> 
-      </header>
+    <section class="produce-entry">      
       
-      <form id="produce-entry-form" class="produce-entry-form">
+      <form id="produce-entry-form" class="entry">
         <div class="input-group">
           <label for="produce-type">Type</label>
           <input type="text" id="produce-type" name="produce-type" required>
@@ -101,6 +97,51 @@
         <button type="submit">Add Produce</button>
       </form>
     </section>    
+
+    <!-- Add Farm Section -->
+    <section class="add-farm produce-data">
+      <h2>Add a Farm</h2>
+      <form id="add-farm-form" class="entry">
+        <div class="input-group">
+          <label for="farm-name">Farm Name</label>
+          <input type="text" id="farm-name" name="farm-name" required>
+        </div>
+        <div class="input-group">
+          <label for="farm-size">Farm Size (in acres)</label>
+          <input type="number" id="farm-size" name="farm-size" required>
+        </div>
+        <div class="input-group">
+          <label for="crop-type">Crop Type</label>
+          <input type="text" id="crop-type" name="crop-type" required>
+        </div>
+        <button type="submit" class="add-button">Add Farm</button>
+      </form>
+    </section>
+
+    <!-- Manage Storage Locations Section -->
+    <section class="manage-storage produce-data">
+      <h2>Manage Storage Locations</h2>
+      <form id="add-storage-form" class="entry">
+        <div class="input-group">
+          <label for="storage-name">Storage Name</label>
+          <input type="text" id="storage-name" name="storage-name" required>
+        </div>
+        <div class="input-group">
+          <label for="storage-country">Country</label>
+          <input type="text" id="storage-country" name="storage-country" required>
+        </div>
+        <div class="input-group">
+          <label for="storage-county">County</label>
+          <input type="text" id="storage-county" name="storage-county" required>
+        </div>
+        <button type="submit" class="add-button">Add Storage Location</button>
+      </form>
+
+      <h3>Existing Storage Locations</h3>
+      <ul id="storage-list">
+        <!-- Storage locations will be dynamically loaded here -->
+      </ul>
+    </section>
   </main>
 
   <!-- Footer -->
@@ -109,7 +150,49 @@
   </footer>
 
   <!-- Link to JavaScript File -->
-  <script src="Produce.js"></script>
+  <script src="Produce.js" type="module"></script>
+  <script src="auth.js" type="module"></script>
+  <script type="module">
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    import { app } from "./firebaseconnection.js";
+
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    const addFarmForm = document.getElementById("add-farm-form");
+    addFarmForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const farmName = document.getElementById("farm-name").value;
+      const farmSize = document.getElementById("farm-size").value;
+      const cropType = document.getElementById("crop-type").value;
+
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to add a farm.");
+        return;
+      }
+
+      const userId = user.uid;
+
+      try {
+        const farmRef = push(ref(database, `farms`));
+        await set(farmRef, {
+          userId,
+          farmName,
+          farmSize,
+          cropType,
+        });
+
+        alert("Farm added successfully!");
+        addFarmForm.reset();
+      } catch (error) {
+        console.error("Error adding farm:", error.message);
+        alert("Failed to add farm. Please try again.");
+      }
+    });
+  </script>
 </body>
 </html>
 

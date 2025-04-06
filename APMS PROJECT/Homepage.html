@@ -29,7 +29,7 @@
         <a href="Account.html">Account</a>
         <a href="Notifications.html">Notifications</a>  
         <a href="Help.html">Help</a>
-        <a href="Login.html">Logout</a>
+        <button class="logoutButton" id="logoutButton">Logout</button>
       </div>
     </div>
   </nav>
@@ -66,26 +66,20 @@
     </section>
 
     <!-- Weather Display Section -->
-    <section id="weather-display" class="weather-display hidden">
-      <h2>Current Weather</h2>
-      <div id="current-weather" class="weather-card"></div>
-      
+    <section id="current-weather" class="weather-display hidden">
+      <!-- Weather data will be displayed here -->
     </section>
 
     <!-- Recent Activity Section -->
-    <section class="recent-activity">
-      <h2>Quick notes</h2>
+    <section class="recent-activity entry">
+      <h2>Quick Notes</h2>
       <ul id="activity-list">
-        <li>Planted 50 acres of wheat.</li>
-        <li>Applied fertilizer to cornfield.</li>
-        <li>Harvested 100kg of tomatoes.</li>
+        <li>No recent activity</li>
       </ul>
-      <!-- Form to Add New Activity -->
-      <form id="add-activity-form">
+      <form id="add-activity-form" class="entry">
         <div class="input-group">
           <input type="text" id="activity-input" placeholder="Add new note" required>
         </div>
-        
         <button type="submit">Add</button>
       </form>
     </section>
@@ -98,6 +92,7 @@
 
   <!-- Link to JavaScript File -->
   <script src="Homepage.js" type="module"></script>
+  <script src="auth.js" type="module"></script>
   
 </body>
 </html>
