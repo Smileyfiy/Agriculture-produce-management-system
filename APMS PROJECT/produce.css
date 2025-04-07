@@ -30,6 +30,7 @@ h1 {
   margin: 2rem auto;
   max-width: 1200px;
   padding: 0 1rem;
+  margin-top: 2rem;
 }
 
 .produce-data h2 {
@@ -44,4 +45,55 @@ h1 {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
+}
+
+.produce-data .card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.produce-data .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Inventory Item Section */
+.inventory-item {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.inventory-item h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #2e8b57; /* Green */
+}
+
+.inventory-item p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* Add to produce.css */
+.storage-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.storage-list li {
+  background-color: #fff;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
