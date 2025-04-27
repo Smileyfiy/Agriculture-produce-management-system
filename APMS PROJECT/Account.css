@@ -1,75 +1,85 @@
-.account-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 20px;
-}
-
-.account-container {
-  text-align: center;
+/* General Form Styling */
+.account-details {
   max-width: 500px;
-  width: 100%;
-  background-color: #f9f9f9;
+  margin: 50px auto;
   padding: 20px;
-  border-radius: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.profile-picture img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  margin-bottom: 10px;
+.account-form {
+  display: flex;
+  flex-direction: column;
 }
 
-.edit-picture-btn {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.account-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.edit-picture-btn:hover {
-  background-color: #0056b3;
-}
-
-.account-details {
-  margin-top: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.form-group label {
-  display: block;
+.account-form label {
   margin-bottom: 5px;
   font-weight: bold;
+  color: #555;
 }
 
-.form-group input {
-  width: 100%;
+.account-form input[type="text"],
+.account-form input[type="email"],
+.account-form input[type="password"],
+.account-form input[type="file"] {
   padding: 10px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.save-btn {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: #fff;
+.account-form input[type="file"] {
+  padding: 5px;
+}
+
+.account-form img#profile-picture-preview {
+  max-width: 150px;
+  margin: 10px 0;
+  border-radius: 50%;
+  display: none; /* Hidden by default */
+}
+
+/* Save Button Styling */
+.account-form .save-btn {
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 14px; /* Match input font size */
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  max-width: 150px; /* Limit button width */
+  margin: 10px auto; /* Center the button */
 }
 
-.save-btn:hover {
-  background-color: #218838;
+.account-form .save-btn:hover {
+  background-color: #45a049;
+}
+
+/* Delete Button Styling */
+.account-form .delete-btn {
+  padding: 10px;
+  background-color: #f44336; /* Red color for delete */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px; /* Match input font size */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  max-width: 150px; /* Limit button width */
+  margin: 10px auto; /* Center the button */
+}
+
+.account-form .delete-btn:hover {
+  background-color: #d32f2f; /* Darker red on hover */
 }

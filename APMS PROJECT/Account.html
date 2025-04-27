@@ -1,90 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agricultural Produce Management System</title>
-  <link rel="stylesheet" href="generalstyles.css">
-  <link rel="stylesheet" href="Account.css">
-</head>
-<body>
-  
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="logo">
-      <img src="APMS Logo.png" alt="Logo">
-      <span>APMS</span>
-    </div>
-    <ul class="nav-links">
-      <li><a href="Homepage.html">Dashboard</a></li>
-      <li><a href="Produce.html">Produce</a></li>    
-      <li><a href="Sales.html">Sales</a></li>
-      <li><a href="Reports.html">Reports</a></li>
-    </ul>
-
-    <!--Dropdown menu hidden at user icon -->
-    <div class="user-profile">
-      <img src="User Icon.png" alt="User Icon.png" class="user-icon">
-      <div class="dropdown-menu">
-        <a href="Account.html">Account</a>
-        <a href="Notifications.html">Notifications</a>        
-        <a href="Help.html">Help</a>
-        <button class="logoutButton" id="logoutButton.js">Logout</button>
-        
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agricultural Produce Management System</title>
+    <link rel="stylesheet" href="generalstyles.css" />
+    <link rel="stylesheet" href="Account.css" />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="logo">
+        <img src="APMS Logo.png" alt="Logo" />
+        <span>APMS</span>
       </div>
-    </div>
-  </nav>
+      <ul class="nav-links">
+        <li><a href="Homepage.html">Dashboard</a></li>
+        <li><a href="Produce.html">Produce</a></li>
+        <li><a href="Sales.html">Sales</a></li>
+        <li><a href="Reports.html">Reports</a></li>
+      </ul>
 
-  <!-- Account Section -->
-  <section class="account-section">
-    <div class="account-container">
-      <h1>My Account</h1>
-      <div class="profile-picture">
-        <img src="User Icon.png" alt="User Icon.png" class="user-icon">
-        <br>        
-        <button class="edit-picture-btn">Edit Picture</button>
+      <!--Dropdown menu hidden at user icon -->
+      <div class="user-profile">
+        <img src="User Icon.png" alt="User Icon.png" class="user-icon" />
+        <div class="dropdown-menu">
+          <a href="Account.html">Account</a>
+          <a href="Notifications.html">Notifications</a>
+          <a href="Help.html">Help</a>
+          <button class="logoutButton" id="logoutButton.js">Logout</button>
+        </div>
       </div>
-      <div class="account-details">
-        <form action="#" method="POST">
-          <div class="form-group">
+    </nav>
+
+    <!-- Account Section -->
+    <section class="account-section">
+      <div class="account-container">
+        <h1>My Account</h1>
+        <div class="account-details">
+          <form class="account-form">
+            <h2>Account Details</h2>
+
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name" value="John Doe" required>
-          </div>
-          <div class="form-group">
+            <input type="text" id="name" name="name" required />
+
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="johndoe@example.com" required>
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone / Telephone:</label>
-            <input type="tel" id="phone" name="phone" value="123-456-7890" required>
-          </div>
-          <div class="form-group">
+            <input type="email" id="email" name="email" required />
+
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone" required />
+
             <label for="country">Country:</label>
-            <input type="text" id="country" name="country" value="Kenya" required>
-          </div>
-          <div class="form-group">
+            <input type="text" id="country" name="country" required />
+
             <label for="county">County:</label>
-            <input type="text" id="county" name="county" value="Nairobi" required>
-          </div>
-          <div class="form-group">
+            <input type="text" id="county" name="county" required />
+
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter new password">
-          </div>
-          <button type="submit" class="save-btn">Save Changes</button>
-        </form>
-        <form action="#" method="POST" style="margin-top: 20px;">
-          <button type="submit" class="save-btn" style="background-color: #dc3545;" onclick="return confirm('Are you sure you want to delete your account?');">Delete Account</button>
-        </form>
+            <input type="password" id="password" name="password" />
+
+            <button type="submit" class="save-btn">Save Changes</button>
+            <button type="button" id="delete-account" class="delete-btn">
+              Delete Account
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-
-  <script src="auth.js" type="module"></script>
-
-</body>
+    <script src="Account.js" type="module"></script>
+    <script src="auth.js" type="module"></script>
+  </body>
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
+    <p>
+      &copy; 2025 Agricultural Produce Management System. All rights reserved.
+    </p>
   </footer>
+</html>

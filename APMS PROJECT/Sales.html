@@ -6,9 +6,9 @@
   <title>Agricultural Produce Management System</title>
   <link rel="stylesheet" href="generalstyles.css">
   <link rel="stylesheet" href="sales.css">
+  
 </head>
 <body>
-
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">
@@ -17,134 +17,118 @@
     </div>
     <ul class="nav-links">
       <li><a href="Homepage.html">Dashboard</a></li>
-      <li><a href="Produce.html">Produce</a></li>    
-      <li><a href="#"class="active">Sales</a></li>
+      <li><a href="Produce.html">Produce</a></li>
+      <li><a href="#" class="active">Sales</a></li>
       <li><a href="Reports.html">Reports</a></li>
-      
     </ul>
 
-    <!--Dropdown menu hidden at user icon -->
+    <!-- Dropdown Menu -->
     <div class="user-profile">
-      <img src="User Icon.png" alt="User Icon.png" class="user-icon">
+      <img src="User Icon.png" alt="User Icon" class="user-icon">
       <div class="dropdown-menu">
         <a href="Account.html">Account</a>
         <a href="Notifications.html">Notifications</a>
-        
         <a href="Help.html">Help</a>
         <button class="logoutButton" id="logoutButton">Logout</button>
-       
       </div>
     </div>
   </nav>
 
-<br>
-<section class="cards">
-  <!-- Sales Activity Card -->
-  <div class="card">
-    <h2>Sales Activity</h2>
-    <p>Monitor all your sale activity</p>
-    <a href="Sales.html" class="button">View Details</a>
-  </div>
-
-  <!-- Inventory Card -->
-  <div class="card">
-    <h2>Inventory</h2>
-    <p>View Inventory levels quickly.</p>
-    <a href="Produce.html#inventory-section" class="button">Manage Inventory</a>
-  </div>
-
-  <div class="card">
-    <h2>Schedule sale</h2>
-    <p>Schedule a sale date to get a reminder</p>
-    <button>Schedule</button>
-</section>
-<br>
-
-
-<!-- Sale Entry Section -->
-<section class="entry">
-  <header class="header">
-    <h2>Sale Entry</h2>
-    <p>Enter details of sales made</p>
-  </header>
-  
-  <form id="add-sales-form">
-    <div class="input-group">
-      <label for="produce-dropdown">Select Produce</label>
-      <select id="produce-dropdown" name="produce-dropdown" required>
-        <!-- Produce options will be dynamically loaded here -->
-      </select>
-    </div>
-    <div class="input-group">
-      <label for="quantity-sold">Quantity Sold</label>
-      <input type="number" id="quantity-sold" name="quantity-sold" required>
-    </div>
-    <div class="input-group">
-      <label for="sale-date">Sale Date</label>
-      <input type="date" id="sale-date" name="sale-date" required>
-    </div>
-    <div class="input-group">
-      <label for="sale-price">Sale Price (in KSH)</label>
-      <input type="number" id="sale-price" name="sale-price" required>
-    </div>
-    <div class="input-group">
-      <label for="buyer-name">Buyer Name</label>
-      <input type="text" id="buyer-name" name="buyer-name" required>
-    </div>
-    <div class="input-group">
-      <label for="buyer-contact">Buyer Contact</label>
-      <input type="text" id="buyer-contact" name="buyer-contact" required>
-    </div>
-    <button type="submit">Add Sale</button>
-  </form>
-</section>    
-
-<!-- Recent Sales Section -->
-<section class="recent-sales">
-  <header class="header">
-    <h2>Recent Sales</h2>
-    <p>View details of your recent sales</p>
-  </header>
-  <div id="sales-cards-container" class="sales-cards">
-    <!-- Sales cards will be dynamically loaded here -->
-  </div>
-</section>
-
-<!-- Schedule Sale Modal -->
-<div id="schedule-sale-modal" class="modal hidden">
-  <div class="modal-content">
-    <span id="close-modal" class="close-button">&times;</span>
-    <h2>Schedule Sale</h2>
-    <form id="schedule-sale-form">
-      <div class="input-group">
-        <label for="schedule-buyer-name">Buyer Name</label>
-        <input type="text" id="schedule-buyer-name" name="schedule-buyer-name" required>
+  <main>
+    <!-- Sales Activity Section -->
+    <section class="cards">
+      <div class="card">
+        <h2>Sales Activity</h2>
+        <p>Monitor all your sale activity</p>
+        <a href=".html" class="button">View Details</a>
       </div>
-      <div class="input-group">
-        <label for="schedule-buyer-contact">Buyer Contact</label>
-        <input type="text" id="schedule-buyer-contact" name="schedule-buyer-contact" required>
-      </div>
-      <div class="input-group">
-        <label for="schedule-date">Sale Date</label>
-        <input type="date" id="schedule-date" name="schedule-date" required>
-      </div>
-      <div class="input-group">
-        <label for="schedule-quantity">Amount of Produce</label>
-        <input type="number" id="schedule-quantity" name="schedule-quantity" required>
-      </div>
-      <button type="submit">Schedule Sale</button>
-    </form>
-  </div>
-</div>
 
-</main>
-<script src="auth.js" type="module"></script>
+      <div class="card">
+        <h2>Inventory</h2>
+        <p>View Inventory levels quickly.</p>
+        <a href="Produce.html#inventory-section" class="button">Manage Inventory</a>
+      </div>
+
+      <div class="card">
+        <h2>Schedule Sale</h2>
+        <p>Schedule a sale date to get a reminder</p>
+        <button id="schedule-sale-button">Schedule</button>
+      </div>
+    </section>
+
+    <!-- Sale Entry Section -->
+    <section class="entry">
+      <header class="header">
+        <h2>Sale Entry</h2>
+        <p>Enter details of sales made</p>
+      </header>
+
+      <!-- Add Sales Form -->
+      <form id="add-sales-form" class="styled-form">
+        <h3>Add Sale</h3>
+        <label for="produce-name">Produce Name</label>
+        <input type="text" id="produce-name" placeholder="Enter produce name" required />
+
+        <label for="quantity-sold">Quantity Sold</label>
+        <input type="number" id="quantity-sold" required />
+
+        <label for="sale-date">Sale Date</label>
+        <input type="date" id="sale-date" required />
+
+        <label for="sale-price">Sale Price</label>
+        <input type="number" id="sale-price" step="0.01" required />
+
+        <label for="buyer-name">Buyer Name</label>
+        <input type="text" id="buyer-name" required />
+
+        <label for="buyer-contact">Buyer Contact</label>
+        <input type="text" id="buyer-contact" required />
+
+        <button type="submit" class="btn-primary">Add Sale</button>
+      </form>
+    </section>
+
+    <!-- Scheduled Sale Section -->
+    <section id="schedule-sale" class="styled-section">
+      <h2>Schedule Sale</h2>
+      <button id="schedule-sale-button" class="btn-secondary">Schedule Sale</button>
+      <form id="schedule-sale-form" class="styled-form" style="display: none;">
+        <label for="scheduled-buyer-name">Buyer Name</label>
+        <input type="text" id="scheduled-buyer-name" required />
+
+        <label for="scheduled-sale-date">Sale Date</label>
+        <input type="date" id="scheduled-sale-date" required />
+
+        <label for="scheduled-produce-type">Produce Type</label>
+        <input type="text" id="scheduled-produce-type" required />
+
+        <button type="submit" class="btn-primary">Add Scheduled Sale</button>
+      </form>
+    </section>
+
+    <!-- Recent Sales Section -->
+    <section id="recent-sales" class="styled-section">
+      <h2>Recent Sales</h2>
+      <div id="sales-list"></div>
+    </section>
+
+    <!-- Recent Notifications Section -->
+    <section id="recent-notifications" class="styled-section">
+      <h2>Recent Notifications</h2>
+      <div id="notifications-list"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="auth.js" type="module"></script>
+  <script src="sales.js" type="module"></script>
 </body>
-
-<!-- Footer -->
-<footer class="footer">
-  <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
-</footer>
+</html>
 
 
 

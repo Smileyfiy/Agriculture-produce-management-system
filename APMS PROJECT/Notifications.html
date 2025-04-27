@@ -1,154 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notifications Module</title>
-    <link rel="stylesheet" href="generalstyles.css">   
-    <link rel="stylesheet" href="Notifications.css">   
-       
-</head>
-<body>
+    <link rel="stylesheet" href="generalstyles.css" />
+    <link rel="stylesheet" href="Notifications.css" />
+    <script src="Notifications.js" type="module"></script>
+  </head>
+  <body>
     <nav class="navbar">
-        <div class="logo">
-          <img src="APMS Logo.png" alt="Logo">
-          <span>APMS</span>
-        </div>
-        <ul class="nav-links">
-          <li><a href="Homepage.html">Dashboard</a></li>
-          <li><a href="Produce.html">Produce</a></li>    
-          <li><a href="Sales.html">Sales</a></li>
-          <li><a href="Reports.html">Reports</a></li>
-        </ul>
-        
-        <!--Dropdown menu hidden at user icon-->
+      <div class="logo">
+        <img src="APMS Logo.png" alt="Logo" />
+        <span>APMS</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="Homepage.html">Dashboard</a></li>
+        <li><a href="Produce.html">Produce</a></li>
+        <li><a href="Sales.html">Sales</a></li>
+        <li><a href="Reports.html">Reports</a></li>
+      </ul>
 
-        <div class="user-profile">
-            <img src="User Icon.png" alt="User Icon.png" class="user-icon">
-            <div class="dropdown-menu">
-              <a href="Account.html">Account</a>
-              <a href="Notifications.html">Notifications</a>
-              
-              <a href="Help.html">Help</a>
-              <button class="logoutButton" id="logoutButton">Logout</button>
-             
-            </div>
-          </div>
-        </nav>
-      
-    
+      <!--Dropdown menu hidden at user icon-->
+
+      <div class="user-profile">
+        <img src="User Icon.png" alt="User Icon.png" class="user-icon" />
+        <div class="dropdown-menu">
+          <a href="Account.html">Account</a>
+          <a href="Notifications.html">Notifications</a>
+
+          <a href="Help.html">Help</a>
+          <button class="logoutButton" id="logoutButton">Logout</button>
+        </div>
+      </div>
+    </nav>
 
     <div class="form-container produce-card">
-        <h2>Recent Notifications:</h2>
-        <ul id="recent-notifications" class="notification-list">
-            <li>No recent notifications</li>
-        </ul>
+      <h2>Recent Notifications:</h2>
+      <ul id="recent-notifications" class="notification-list">
+        <li>No recent notifications</li>
+      </ul>
     </div>
-    <br>
+    <br />
 
+    
+    
 
-    <h1 class="produce-header">Notifications Preferences</h1>
+    <script src="auth.js" type="module"></script>
 
-    <div class="form-container">
-        <h2>Notify me when:</h2>
-        <form id="notification-form">
-            <ul class="notification-list">
-                <li><input type="checkbox" id="sale" name="notification" value="A sale is made"><label for="sale">A sale is made</label></li>
-                <li><input type="checkbox" id="harvest" name="notification" value="Harvesting season reminder"><label for="harvest">Harvesting season reminder</label></li>
-                <li><input type="checkbox" id="inventory" name="notification" value="Low Inventory"><label for="inventory">Low Inventory</label></li>
-                <li><input type="checkbox" id="spoil" name="notification" value="Crops near spoil"><label for="spoil">Crops near spoil</label></li>
-                <li><input type="checkbox" id="sale-date" name="notification" value="Scheduled sale date"><label for="sale-date">Scheduled sale date</label></li>
-                <li><input type="checkbox" id="payments" name="notification" value="Reminders to make payments"><label for="payments">Reminders to make payments</label></li>
-            </ul>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-
-    <div class="form-container">
-        <h2>Modes of notification:</h2>
-        <form id="mode-form">
-            <ul class="notification-list">
-                <li><input type="checkbox" id="email" name="mode" value="Email"><label for="email">Email</label></li>
-                <li><input type="checkbox" id="sms" name="mode" value="SMS"><label for="sms">SMS</label></li>
-            </ul>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-    <div class="form-container">
-        <h2>Selected Notifications:</h2>
-        <form id="selected-notifications-form">
-            <ul id="selected-notifications" class="notification-list">
-                <li>No notifications selected</li>
-            </ul>
-            <button type="submit">Refresh</button>
-        </form>
-    </div>
-
-    <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
-  </footer>
-
-  <script src="auth.js" type="module"></script>
-
-    <script>
-        const recentNotifications = [];
-
-        document.getElementById('notification-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const selectedNotifications = document.querySelectorAll('input[name="notification"]:checked');
-            const notificationList = document.getElementById('selected-notifications');
-            notificationList.innerHTML = '';
-
-            if (selectedNotifications.length === 0) {
-                notificationList.innerHTML = '<li>No notifications selected</li>';
-            } else {
-                selectedNotifications.forEach(notification => {
-                    const li = document.createElement('li');
-                    li.textContent = notification.value;
-                    notificationList.appendChild(li);
-                    recentNotifications.push(notification.value);
-                });
-                updateRecentNotifications();
-            }
-        });
-
-        document.getElementById('mode-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const selectedModes = document.querySelectorAll('input[name="mode"]:checked');
-            const notificationList = document.getElementById('selected-notifications');
-            const existingNotifications = notificationList.innerHTML;
-
-            if (selectedModes.length === 0) {
-                alert('Please select at least one mode of notification.');
-            } else {
-                const modes = Array.from(selectedModes).map(mode => mode.value).join(', ');
-                const li = document.createElement('li');
-                li.textContent = `Notification modes: ${modes}`;
-                notificationList.innerHTML = existingNotifications + li.outerHTML;
-                recentNotifications.push(`Notification modes: ${modes}`);
-                updateRecentNotifications();
-            }
-        });
-
-        document.getElementById('selected-notifications-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            // Refresh logic can be added here if needed
-        });
-
-        function updateRecentNotifications() {
-            const recentList = document.getElementById('recent-notifications');
-            recentList.innerHTML = '';
-            if (recentNotifications.length === 0) {
-                recentList.innerHTML = '<li>No recent notifications</li>';
-            } else {
-                recentNotifications.forEach(notification => {
-                    const li = document.createElement('li');
-                    li.textContent = notification;
-                    recentList.appendChild(li);
-                });
-            }
-        }
-    </script>
-</body>
+    
+  </body>
+ 
 </html>

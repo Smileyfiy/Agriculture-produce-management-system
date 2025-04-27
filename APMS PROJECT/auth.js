@@ -96,3 +96,14 @@ export async function logoutUser() {
     alert(error.message);
   }
 }
+
+onAuthStateChanged(auth, async (user) => {
+  const currentPath = window.location.pathname;
+
+  // Allow access to Register.html and Login.html without authentication
+  if (!user && !["/Login.html", "/Register.html"].includes(currentPath)) {
+    window.location.replace("Login.html");
+  }
+
+
+});

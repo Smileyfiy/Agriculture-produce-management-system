@@ -60,12 +60,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     onValue(activityRef, (snapshot) => {
       activityList.innerHTML = ""; // Clear the list before adding new items
+      let lastActivity = null;
+
       snapshot.forEach((childSnapshot) => {
-        const activity = childSnapshot.val();
-        const li = document.createElement("li");
-        li.textContent = `${activity.text} (${new Date(activity.timestamp).toLocaleString()})`;
-        activityList.appendChild(li);
+      const activity = childSnapshot.val();
+      const li = document.createElement("li");
+      li.textContent = `${activity.text} (${new Date(activity.timestamp).toLocaleString()})`;
+      activityList.appendChild(li);
+      lastActivity = activity; // Track the last activity
       });
+
+      // Send a notification when a new activity is added
+      if (lastActivity) {
+      const notification = new Notification("New Activity Added", {
+        body: `Activity: ${lastActivity.text}`,
+      });
+      }
     });
   }
 
