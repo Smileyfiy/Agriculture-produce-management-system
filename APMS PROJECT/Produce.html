@@ -1,186 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Produce - Agricultural Produce Management System</title>
-    <link rel="stylesheet" href="produce.css" />
-    <link rel="stylesheet" href="generalstyles.css" />
-  </head>
-  <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="logo">
-        <img src="APMS Logo.png" alt="Logo" />
-        <span>APMS</span>
-      </div>
-      <ul class="nav-links">
-        <li><a href="Homepage.html">Dashboard</a></li>
-        <li><a href="#" class="active">Produce</a></li>
-        <li><a href="Sales.html">Sales</a></li>
-        <li><a href="Reports.html">Reports</a></li>
-      </ul>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APMS - Produce Management</title>
+  <link rel="stylesheet" href="generalstyles.css">
+  <link rel="stylesheet" href="produce.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
 
-      <!--Dropdown menu hidden at user icon -->
-      <div class="user-profile">
-        <img src="User Icon.png" alt="User Icon.png" class="user-icon" />
-        <div class="dropdown-menu">
-          <a href="Account.html">Account</a>
-          <a href="Notifications.html">Notifications</a>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">
+    <img src="APMS Logo.png" alt="Logo">
+    <span>APMS</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="Homepage.html">Dashboard</a></li>
+    <li><a href="Produce.html" class="active">Produce</a></li>
+    <li><a href="Sales.html">Sales</a></li>
+    <li><a href="Reports.html">Reports</a></li>
+    <li><a href="Notifications.html">Notifications</a></li>
+    <li><a href="Help.html">Help</a></li>
+  </ul>
+  <div class="user-profile">
+    <img src="User Icon.png" alt="User Icon" class="user-icon" />
+    <div class="dropdown-menu">
+      <a href="Account.html">Account</a>
+      <button class="logoutButton" id="logoutButton">Logout</button>
+    </div>
+  </div>
+</nav>
 
-          <a href="Help.html">Help</a>
-          <button class="logoutButton" id="logoutButton">Logout</button>
-        </div>
-      </div>
-    </nav>
+<!-- Dashboard Content -->
+<section class="produce-dashboard">
+  <h1>Manage Your Produce</h1>
 
-    <!-- Produce Section -->
-    <main class="produce">
-      
+  <!-- Add Produce Form -->
+  <div class="form-section">
+    <h2>Add Produce</h2>
+    <form id="add-produce-form">
+      <input type="text" id="produce-type" placeholder="Produce Type" required>
+      <input type="number" id="quantity" placeholder="Quantity" required>
+      <input type="date" id="harvest-date" required>
+      <input type="text" id="category" placeholder="Category" required>
+      <select id="storage-location" required>
+        <option value="">Select Storage Location</option>
+      </select>
+      <button type="submit" class="btn-primary">Add Produce</button>
+    </form>
+  </div>
 
-      <!-- Section to display produce data -->
-      <section class="produce-data">
-        <h2>Produce Data</h2>
-        <div class="cards"></div>
-      </section>
+  <!-- Add Storage Location Form -->
+  <div class="form-section">
+    <h2>Add Storage Location</h2>
+    <form id="add-storage-form">
+      <input type="text" id="storage-name" placeholder="Storage Name" required>
+      <input type="text" id="storage-country" placeholder="Country" required>
+      <input type="text" id="storage-county" placeholder="County" required>
+      <button type="submit" class="btn-primary">Add Storage</button>
+    </form>
+  </div>
 
-      <!-- Produce Entry Section -->
-      <section class="produce-entry">
-        <form id="produce-entry-form" class="entry">
-          <h2>Enter the produce details</h2>
+  <!-- Produce Items -->
+  <div class="produce-cards" id="produce-cards">
+    <!-- Cards dynamically loaded here -->
+  </div>
+</section>
 
-          <div class="input-group">
-            <label for="produce-type">Type</label>
-            <input type="text" id="produce-type" name="produce-type" required />
-          </div>
-          <div class="input-group">
-            <label for="produce-quantity">Quantity</label>
-            <input
-              type="number"
-              id="produce-quantity"
-              name="produce-quantity"
-              required
-            />
-          </div>
-          <div class="input-group">
-            <label for="harvest-date">Harvest Date</label>
-            <input type="date" id="harvest-date" name="harvest-date" required />
-          </div>
-          <div class="input-group">
-            <label for="storage-location-select">Storage Location:</label>
-            <select
-              id="storage-location-select"
-              name="storage-location"
-              required
-            >
-              <option value="" disabled selected>
-                Select a storage location
-              </option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label for="produce-category">Category</label>
-            <select id="produce-category" name="produce-category" required>
-              <option value="grain">Grain</option>
-              <option value="fruit">Fruit</option>
-              <option value="vegetable">Vegetable</option>
-              <option value="tuber">Tuber</option>
-            </select>
-          </div>
-          <br />
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
 
-          <button type="submit">Add Produce</button>
-        </form>
-      </section>
+<script type="module" src="produce.js"></script>
 
-      <!-- Manage Storage Locations Section -->
-      <section class="manage-storage produce-data">
-        <h2>Manage Storage Locations</h2>
-        <form id="add-storage-form" class="entry">
-          <div class="input-group">
-            <label for="storage-name">Storage Name</label>
-            <input type="text" id="storage-name" name="storage-name" required />
-          </div>
-          <div class="input-group">
-            <label for="storage-country">Country</label>
-            <input
-              type="text"
-              id="storage-country"
-              name="storage-country"
-              required
-            />
-          </div>
-          <div class="input-group">
-            <label for="storage-county">County</label>
-            <input
-              type="text"
-              id="storage-county"
-              name="storage-county"
-              required
-            />
-          </div>
-          <button type="submit" class="add-button">Add Storage Location</button>
-        </form>
-        <!-- Add this unordered list to display storage locations -->
-        <ul id="storage-list" class="storage-list"></ul>
-      </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <p>
-        &copy; 2025 Agricultural Produce Management System. All rights reserved.
-      </p>
-    </footer>
-
-    <!-- Link to JavaScript File -->
-    <script src="Produce.js" type="module"></script>
-    <script src="auth.js" type="module"></script>
-    <script type="module">
-      import { getAuth } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-      import {
-        getDatabase,
-        ref,
-        push,
-        set,
-      } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-      import { app } from "./firebaseconnection.js";
-
-      const auth = getAuth(app);
-      const database = getDatabase(app);
-
-      const addFarmForm = document.getElementById("add-farm-form");
-      addFarmForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const farmName = document.getElementById("farm-name").value;
-        const farmSize = document.getElementById("farm-size").value;
-        const cropType = document.getElementById("crop-type").value;
-
-        const user = auth.currentUser;
-        if (!user) {
-          alert("You must be logged in to add a farm.");
-          return;
-        }
-
-        const userId = user.uid;
-
-        try {
-          const farmRef = push(ref(database, `farms`));
-          await set(farmRef, {
-            userId,
-            farmName,
-            farmSize,
-            cropType,
-          });
-
-          alert("Farm added successfully!");
-          addFarmForm.reset();
-        } catch (error) {
-          console.error("Error adding farm:", error.message);
-          alert("Failed to add farm. Please try again.");
-        }
-      });
-    </script>
-  </body>
+</body>
 </html>

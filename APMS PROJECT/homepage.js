@@ -1,158 +1,119 @@
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getDatabase, ref, push, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-import { app } from "./firebaseconnection.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { app } from './firebaseconnection.js';
 
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-document.addEventListener("DOMContentLoaded", () => {
-  // References to DOM elements
-  const addActivityForm = document.getElementById("add-activity-form");
-  const activityInput = document.getElementById("activity-input");
-  const activityList = document.getElementById("activity-list");
-  const weatherDisplay = document.getElementById("current-weather");
-  const checkWeatherButton = document.getElementById("check-weather-button");
+const weatherDiv = document.getElementById('weather');
+const noteForm = document.getElementById('note-form');
+const noteInput = document.getElementById('note-input');
+const notesList = document.getElementById('notes-list');
+const viewAllBtn = document.getElementById('view-all-btn');
+const toast = document.getElementById('toast');
 
-  // Handle form submission for adding activities
-  addActivityForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+let notes = [];
 
-    const user = auth.currentUser;
-    if (!user) {
-      alert("You must be logged in to add a note.");
-      return;
-    }
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  toast.classList.remove('hidden');
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.classList.add('hidden');
+  }, 3000);
+}
 
-    const userId = user.uid; // Get the authenticated user's ID
-    const activityText = activityInput.value.trim();
-
-    if (activityText === "") {
-      alert("Activity cannot be empty.");
-      return;
-    }
-
-    try {
-      const activityRef = ref(database, `activities/${userId}`);
-      await push(activityRef, {
-        text: activityText,
-        timestamp: new Date().toISOString(),
-      });
-
-      alert("Activity added successfully!");
-      activityInput.value = ""; // Clear the input field
-      loadActivities(); // Reload activities after adding a new one
-    } catch (error) {
-      console.error("Error adding note:", error);
-      alert("Failed to add activity. Please try again.");
-    }
-  });
-
-  // Load activities for the current user
-  function loadActivities() {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("You must be logged in to view activities.");
-      return;
-    }
-
-    const userId = user.uid;
-    const activityRef = ref(database, `activities/${userId}`);
-
-    onValue(activityRef, (snapshot) => {
-      activityList.innerHTML = ""; // Clear the list before adding new items
-      let lastActivity = null;
-
-      snapshot.forEach((childSnapshot) => {
-      const activity = childSnapshot.val();
-      const li = document.createElement("li");
-      li.textContent = `${activity.text} (${new Date(activity.timestamp).toLocaleString()})`;
-      activityList.appendChild(li);
-      lastActivity = activity; // Track the last activity
-      });
-
-      // Send a notification when a new activity is added
-      if (lastActivity) {
-      const notification = new Notification("New Activity Added", {
-        body: `Activity: ${lastActivity.text}`,
-      });
-      }
-    });
-  }
-
-  // Call loadActivities on page load
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      loadActivities();
-    }
-  });
-
-  // Event listener for the "Check Weather" button
-  checkWeatherButton.addEventListener("click", async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("You must be logged in to check the weather.");
-      return;
-    }
-
-    const userId = user.uid;
-    try {
-      // Fetch user's location from the database
-      const userRef = ref(database, `users/${userId}`);
-      const snapshot = await get(userRef);
-
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        const location = userData.city || "Nairobi"; // Default to Nairobi if city is not available
-        fetchWeather(location);
+// Weather Loading
+function loadWeather(city = "Nairobi") {
+  weatherDiv.textContent = "Loading Weather...";
+  const apiKey = "30136c7016c19d7c941ec78818890eaf"
+  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.cod === 200) {
+        weatherDiv.innerHTML = `
+          ${data.name}: ${data.main.temp}°C, Humidity: ${data.main.humidity}%
+        `;
       } else {
-        console.error("User location not found in the database.");
-        weatherDisplay.textContent = "User location not found.";
-        weatherDisplay.classList.remove("hidden");
+        weatherDiv.textContent = "City not found.";
       }
-    } catch (error) {
-      console.error("Error fetching user location:", error);
-      weatherDisplay.textContent = "Unable to fetch user location.";
-      weatherDisplay.classList.remove("hidden");
-    }
+    })
+    .catch(error => {
+      console.error(error);
+      weatherDiv.textContent = "Failed to load weather.";
+    });
+}
+
+function renderNotes() {
+  notesList.innerHTML = "";
+  let displayedNotes = notes.slice(0, 5);
+
+  displayedNotes.forEach(({ id, content }) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      ${content}
+      <button class="delete-note-btn" onclick="deleteNote('${id}')">🗑️</button>
+    `;
+    notesList.appendChild(li);
   });
 
-  // Fetch weather data from the OpenWeather API
-  async function fetchWeather(location) {
-    const apiKey = "30136c7016c19d7c941ec78818890eaf"; // Replace with your actual API key
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`;
+  viewAllBtn.classList.toggle('hidden', notes.length <= 5);
+}
 
-    console.log("Fetching weather data from:", apiUrl); // Debug log
+window.deleteNote = async function(noteId) {
+  const user = auth.currentUser;
+  if (!user) return;
 
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to fetch weather data: ${errorData.message}`);
-      }
+  await remove(ref(database, `activities/${user.uid}/${noteId}`));
+  showToast("🗑️ Note deleted!");
+}
 
-      const weatherData = await response.json();
-      console.log("Weather Data:", weatherData); // Log the weather data
-      displayWeather(weatherData);
-    } catch (error) {
-      console.error("Error fetching weather data:", error);
-      weatherDisplay.textContent = `Unable to fetch weather data: ${error.message}`;
-      weatherDisplay.classList.remove("hidden");
-    }
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "Login.html";
+    return;
   }
 
-  // Display the fetched weather data
-  function displayWeather(data) {
-    const { main, weather, name } = data;
+  // Load Weather
+  loadWeather();
 
-    // Update the weather display content
-    weatherDisplay.innerHTML = `
-      <h3>${name}</h3>
-      <p>${weather[0].description}</p>
-      <p>Temperature: ${main.temp}°C</p>
-      <p>Humidity: ${main.humidity}%</p>
-    `;
+  // Load Notes
+  onValue(ref(database, `activities/${user.uid}`), (snapshot) => {
+    notes = [];
+    snapshot.forEach(childSnapshot => {
+      notes.push({
+        id: childSnapshot.key,
+        content: childSnapshot.val().note
+      });
+    });
 
-    // Ensure the weather display section is visible
-    weatherDisplay.classList.remove("hidden");
-  }
+    notes.reverse(); // Show most recent first
+    renderNotes();
+  });
+
+  // Add Note
+  noteForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newNote = noteInput.value.trim();
+    if (newNote === "") return;
+
+    await push(ref(database, `activities/${user.uid}`), { note: newNote });
+    noteInput.value = "";
+    showToast("✅ Activity added!");
+  });
+
+  // View All Button
+  viewAllBtn.addEventListener('click', () => {
+    notesList.innerHTML = "";
+    notes.forEach(({ id, content }) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${content}
+        <button class="delete-note-btn" onclick="deleteNote('${id}')">🗑️</button>
+      `;
+      notesList.appendChild(li);
+    });
+    viewAllBtn.classList.add('hidden');
+  });
 });

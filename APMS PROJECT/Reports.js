@@ -111,8 +111,8 @@ async function generateReport(userId) {
   const startDate = new Date(document.getElementById('start-date').value);
   const endDate = new Date(document.getElementById('end-date').value);
 
-  if (!reportType || !startDate || !endDate) {
-    showToast("❌ Please fill all fields.", "error");
+  if (!reportType || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    showToast("❌ Please fill all fields with valid data.", "error");
     return;
   }
 
@@ -152,7 +152,14 @@ async function generateReport(userId) {
       const produceSnapshot = await get(ref(database, `produce/${userId}`));
       if (produceSnapshot.exists()) {
         produceSnapshot.forEach(childSnapshot => {
-          content[childSnapshot.key] = childSnapshot.val();
+          const produceItem = childSnapshot.val();
+          content[childSnapshot.key] = {
+            produceType: produceItem.produceType || produceItem.type || "Unknown",
+            quantity: produceItem.quantity || 0,
+            harvestDate: produceItem.harvestDate || "Unknown",
+            category: produceItem.category || "Unknown",
+            storageLocation: produceItem.storageLocation || "Unknown",
+          };
         });
       }
     }

@@ -1,267 +1,133 @@
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  push,
-  set,
-  onValue,
-  update,
-  get,
-} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-import { app } from "./firebaseconnection.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { app } from './firebaseconnection.js';
 
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-document.addEventListener("DOMContentLoaded", () => {
-  const produceForm = document.getElementById("produce-entry-form");
-  const addStorageForm = document.getElementById("add-storage-form");
-  const storageList = document.getElementById("storage-list");
-  const produceDropdown = document.getElementById("produce-dropdown");
+const addProduceForm = document.getElementById('add-produce-form');
+const addStorageForm = document.getElementById('add-storage-form');
+const produceCards = document.getElementById('produce-cards');
+const storageLocationSelect = document.getElementById('storage-location');
+const toast = document.getElementById('toast');
 
-  // Load produce options into dropdown
-  const loadProduceOptions = () => {
-    auth.onAuthStateChanged((user) => {
-      if (!user) return;
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  toast.classList.remove('hidden');
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.classList.add('hidden');
+  }, 3000);
+}
 
-      const userId = user.uid;
-      const produceRef = ref(database, `produce/${userId}`);
-
-      onValue(produceRef, (snapshot) => {
-        produceDropdown.innerHTML =
-          '<option value="" disabled selected>Select Produce</option>';
-
-        if (!snapshot.exists()) {
-          produceDropdown.innerHTML =
-            '<option value="" disabled>No produce available</option>';
-          return;
-        }
-
-        snapshot.forEach((childSnapshot) => {
-          const produce = childSnapshot.val();
-          const option = document.createElement("option");
-          option.value = childSnapshot.key;
-          option.textContent = `${produce.type} (${produce.quantity} units available)`;
-          produceDropdown.appendChild(option);
-        });
-      });
+// Load Storage Locations into dropdown
+function loadStorageLocations(userId) {
+  onValue(ref(database, `users/${userId}/storageLocations`), (snapshot) => {
+    storageLocationSelect.innerHTML = `<option value="">Select Storage Location</option>`;
+    snapshot.forEach(childSnapshot => {
+      const location = childSnapshot.val();
+      const option = document.createElement('option');
+      option.value = location.storageName;
+      option.textContent = location.storageName;
+      storageLocationSelect.appendChild(option);
     });
-  };
-
-  // Handle Produce Form Submission
-  if (produceForm) {
-    produceForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const produceType = document.getElementById("produce-type").value.trim();
-      const produceQuantity = parseInt(
-        document.getElementById("produce-quantity").value.trim(),
-        10
-      );
-      const harvestDate = document.getElementById("harvest-date").value.trim();
-      const storageLocationKey = document.getElementById(
-        "storage-location-select"
-      ).value;
-      const produceCategory = document.getElementById("produce-category").value;
-
-      const user = auth.currentUser;
-      if (!user) {
-        alert("You must be logged in to add produce.");
-        return;
-      }
-
-      const userId = user.uid;
-
-      try {
-        const produceRef = push(ref(database, `produce/${userId}`));
-        await set(produceRef, {
-          userId,
-          type: produceType,
-          quantity: produceQuantity,
-          harvestDate,
-          storageLocation: storageLocationKey,
-          category: produceCategory,
-          timestamp: new Date().toISOString(),
-        });
-
-        alert("Produce added successfully!");
-        produceForm.reset();
-        loadProduceOptions(); // Refresh dropdown
-      } catch (error) {
-        console.error("Error adding produce:", error.message);
-        alert("Failed to add produce. Please try again.");
-      }
-    });
-  }
-
-  // Handle Add Storage Form Submission
-  if (addStorageForm) {
-    addStorageForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const storageName = document.getElementById("storage-name").value.trim();
-      const storageCountry = document
-        .getElementById("storage-country")
-        .value.trim();
-      const storageCounty = document
-        .getElementById("storage-county")
-        .value.trim();
-
-      const user = auth.currentUser;
-      if (!user) {
-        alert("You must be logged in to add a storage location.");
-        return;
-      }
-
-      const userId = user.uid;
-
-      try {
-        const storageRef = push(
-          ref(database, `users/${userId}/storageLocations`)
-        );
-        await set(storageRef, {
-          userId,
-          storageName,
-          storageCountry,
-          storageCounty,
-        });
-
-        alert("Storage location added successfully!");
-        addStorageForm.reset();
-        loadStorageLocationsForDropdown(); // Refresh dropdown
-      } catch (error) {
-        console.error("Error adding storage location:", error.message);
-        alert("Failed to add storage location. Please try again.");
-      }
-    });
-  }
-
-  // Load Storage Locations for Dropdown
-  const loadStorageLocationsForDropdown = () => {
-    auth.onAuthStateChanged((user) => {
-      if (!user) return;
-
-      const userId = user.uid;
-      const storageRef = ref(database, `users/${userId}/storageLocations`);
-
-      onValue(storageRef, (snapshot) => {
-        const storageDropdown = document.getElementById(
-          "storage-location-select"
-        );
-        storageDropdown.innerHTML =
-          '<option value="" disabled selected>Select a storage location</option>';
-
-        if (!snapshot.exists()) return;
-
-        snapshot.forEach((childSnapshot) => {
-          const storage = childSnapshot.val();
-          const option = document.createElement("option");
-          option.value = childSnapshot.key;
-          option.textContent = `${storage.storageName} - ${storage.storageCountry}, ${storage.storageCounty}`;
-          storageDropdown.appendChild(option);
-        });
-      });
-    });
-  };
-
-  // Load Existing Storage Locations
-  const loadStorageLocations = () => {
-    auth.onAuthStateChanged((user) => {
-      if (!user) return;
-
-      const userId = user.uid;
-      const storageRef = ref(database, `users/${userId}/storageLocations`);
-
-      onValue(storageRef, (snapshot) => {
-        storageList.innerHTML = ""; // Clear the list before adding new items
-
-        if (!snapshot.exists()) {
-          storageList.innerHTML = "<li>No storage locations available.</li>";
-          return;
-        }
-
-        snapshot.forEach((childSnapshot) => {
-          const storage = childSnapshot.val();
-          const li = document.createElement("li");
-          li.textContent = `${storage.storageName} - ${storage.storageCountry}, ${storage.storageCounty}`;
-          storageList.appendChild(li);
-        });
-      });
-    });
-  };
-
-  // Load data on page load
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      loadProduceOptions();
-      loadStorageLocations();
-      loadStorageLocationsForDropdown();
-    }
   });
-});
+}
 
-// Function to handle adding produce and sending notification
-async function notifyAddProduce(produceName) {
+// Load Produce Items
+function loadProduce(userId) {
+  onValue(ref(database, `produce/${userId}`), (snapshot) => {
+    produceCards.innerHTML = "";
+    snapshot.forEach(childSnapshot => {
+      const produce = childSnapshot.val();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3>${produce.produceType}</h3>
+        <p><strong>Quantity:</strong> ${produce.quantity}</p>
+        <p><strong>Harvest Date:</strong> ${produce.harvestDate}</p>
+        <p><strong>Category:</strong> ${produce.category}</p>
+        <p><strong>Storage:</strong> ${produce.storageLocation}</p>
+        <div class="card-buttons">
+          <button class="btn-delete" onclick="deleteProduce('${childSnapshot.key}')">🗑️ Delete</button>
+        </div>
+      `;
+      produceCards.appendChild(card);
+    });
+  });
+}
+
+window.deleteProduce = async function(id) {
   const user = auth.currentUser;
   if (!user) return;
+  await remove(ref(database, `produce/${user.uid}/${id}`));
+  showToast("🗑️ Produce deleted!");
+};
 
-  const userId = user.uid;
-  const userRef = ref(database, `users/${userId}/email`);
-  let email = "";
-
-  try {
-    const snapshot = await get(userRef);
-    if (snapshot.exists()) {
-      email = snapshot.val();
-    } else {
-      console.error("Email not found in the database.");
-      return;
-    }
-  } catch (error) {
-    console.error("Error fetching email from the database:", error);
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "Login.html";
     return;
   }
 
-  const subject = "New Produce Added";
-  const message = `You have added a new produce: ${produceName}.`;
+  loadProduce(user.uid);
+  loadStorageLocations(user.uid);
 
-  try {
-    const response = await fetch("http://localhost:3000/send-notification", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, subject, message }),
+  // Add Produce
+  addProduceForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const produceType = document.getElementById('produce-type').value;
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const harvestDate = document.getElementById('harvest-date').value;
+    const category = document.getElementById('category').value;
+    const storageLocation = document.getElementById('storage-location').value;
+
+    const produceData = {
+      produceType,
+      quantity,
+      harvestDate,
+      category,
+      storageLocation,
+      timestamp: new Date().toISOString()
+    };
+
+    await push(ref(database, `produce/${user.uid}`), produceData);
+
+    // Push Notification
+    await push(ref(database, `notifications/${user.uid}`), {
+      subject: "New Produce Added",
+      message: `Added ${produceType} (${quantity} units) to ${storageLocation}.`,
+      timestamp: new Date().toISOString()
     });
 
-    const result = await response.json();
-    if (response.ok) {
-      alert(result.success);
-      addToRecentNotifications(subject, message);
-    } else {
-      alert(result.error);
-    }
-  } catch (error) {
-    console.error("Error sending notification:", error);
-    alert("Failed to send notification. Please try again.");
-  }
-}
+    addProduceForm.reset();
+    showToast("✅ Produce added successfully!");
+  });
 
-function addToRecentNotifications(subject, message) {
-  const recentNotificationsDiv = document.getElementById("recent-notifications");
-  const notificationItem = document.createElement("div");
-  notificationItem.className = "notification-item";
-  notificationItem.innerHTML = `<strong>${subject}</strong><p>${message}</p>`;
-  recentNotificationsDiv.prepend(notificationItem);
+  // Add Storage Location
+  addStorageForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const storageName = document.getElementById('storage-name').value;
+    const storageCountry = document.getElementById('storage-country').value;
+    const storageCounty = document.getElementById('storage-county').value;
 
-  const user = auth.currentUser;
-  if (user) {
-    const userId = user.uid;
-    const notificationRef = push(ref(database, `notifications/${userId}`));
-    set(notificationRef, {
-      subject,
-      message,
-      timestamp: new Date().toISOString(),
+    const storageData = {
+      storageName,
+      storageCountry,
+      storageCounty
+    };
+
+    await push(ref(database, `users/${user.uid}/storageLocations`), storageData);
+
+    // Push Notification
+    await push(ref(database, `notifications/${user.uid}`), {
+      subject: "New Storage Added",
+      message: `Storage location "${storageName}" added.`,
+      timestamp: new Date().toISOString()
     });
-  }
-}
+
+    addStorageForm.reset();
+    showToast("✅ Storage location added!");
+  });
+});
