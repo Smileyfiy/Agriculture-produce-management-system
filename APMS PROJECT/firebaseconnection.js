@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
 const firebaseConfig = {
     apiKey: "AIzaSyA5iW2aHDvok5fMLb0Ec-0MQ_9omdGxdGc",
     authDomain: "apms-c03ed.firebaseapp.com",
@@ -19,3 +20,4 @@ const database = getDatabase(app);
 
 export { database };
 export { app };
+export const auth = getAuth(app);

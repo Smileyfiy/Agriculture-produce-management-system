@@ -1,0 +1,138 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.help-hero {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.help-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.help-hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: #2c2b2b;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.faq-section {
+    padding: 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+    margin-left: 20px;
+}
+
+.faq-item {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.faq-item:hover {
+    background-color: #f9f9f9; /* Light grey on hover */
+}
+
+.faq-question {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: black;
+    width: 100%;
+    text-align: left;
+    padding: 1rem 1rem; /* Add 1rem left/right padding */
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 10px; /* Add rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.faq-question:hover {
+    background-color: #757373; /* Soft light grey on hover */
+}
+
+.faq-answer {
+    padding: 0 0 1rem 0;
+    display: none;
+    color: #2c2b2b;
+}
+
+.contact-support {
+    padding: 2rem;
+    text-align: center;
+}
+
+.contact-support form {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-support input,
+.contact-support textarea {
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.form-status {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: green;
+}
+
+/* Tutorial Videos Section */
+.tutorial-videos {
+    padding: 2rem;
+    text-align: center;
+}
+
+.tutorial-videos h2 {
+    margin-bottom: 1.5rem;
+}
+
+.videos-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.video-item a {
+    display: block;
+    padding: 1rem;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.video-item a:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-3px);
+}

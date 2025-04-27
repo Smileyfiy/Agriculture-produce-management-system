@@ -2,134 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agricultural Produce Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APMS Sales</title>
   <link rel="stylesheet" href="generalstyles.css">
   <link rel="stylesheet" href="sales.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="logo">
-      <img src="APMS Logo.png" alt="Logo">
-      <span>APMS</span>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">
+    <img src="APMS Logo.png" alt="Logo">
+    <span>APMS</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="Homepage.html">Dashboard</a></li>
+    <li><a href="Produce.html">Produce</a></li>
+    <li><a href="Sales.html" class="active">Sales</a></li>
+    <li><a href="Reports.html">Reports</a></li>
+    <li><a href="Notifications.html">Notifications</a></li>
+    <li><a href="Help.html">Help</a></li>
+  </ul>
+  <div class="user-profile">
+    <img src="User Icon.png" alt="User Icon" class="user-icon" />
+    <div class="dropdown-menu">
+      <a href="Account.html">Account</a>
+      <button class="logoutButton" id="logoutButton">Logout</button>
     </div>
-    <ul class="nav-links">
-      <li><a href="Homepage.html">Dashboard</a></li>
-      <li><a href="Produce.html">Produce</a></li>
-      <li><a href="#" class="active">Sales</a></li>
-      <li><a href="Reports.html">Reports</a></li>
-    </ul>
+  </div>
+</nav>
 
-    <!-- Dropdown Menu -->
-    <div class="user-profile">
-      <img src="User Icon.png" alt="User Icon" class="user-icon">
-      <div class="dropdown-menu">
-        <a href="Account.html">Account</a>
-        <a href="Notifications.html">Notifications</a>
-        <a href="Help.html">Help</a>
-        <button class="logoutButton" id="logoutButton">Logout</button>
-      </div>
+<!-- Toast Notification -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Mini Analytics Dashboard -->
+<section class="sales-analytics">
+  <h2>Sales Overview</h2>
+  <div class="analytics-cards">
+    <div class="card">
+      <h3>Total Sales Revenue</h3>
+      <p id="total-revenue">$0</p>
     </div>
-  </nav>
+    <div class="card">
+      <h3>Total Units Sold</h3>
+      <p id="total-units">0</p>
+    </div>
+  </div>
+</section>
 
-  <main>
-    <!-- Sales Activity Section -->
-    <section class="cards">
-      <div class="card">
-        <h2>Sales Activity</h2>
-        <p>Monitor all your sale activity</p>
-        <a href=".html" class="button">View Details</a>
-      </div>
+<!-- Tabs Section -->
+<section class="sales-tabs">
+  <div class="tabs">
+    <button class="tab active" id="view-sales-tab">View Sales</button>
+    <button class="tab" id="schedule-sale-tab">Schedule Sale</button>
+  </div>
 
-      <div class="card">
-        <h2>Inventory</h2>
-        <p>View Inventory levels quickly.</p>
-        <a href="Produce.html#inventory-section" class="button">Manage Inventory</a>
-      </div>
+  <!-- View Sales Section -->
+  <div id="view-sales-section" class="tab-content">
+    <h2>Sales Dashboard</h2>
 
-      <div class="card">
-        <h2>Schedule Sale</h2>
-        <p>Schedule a sale date to get a reminder</p>
-        <button id="schedule-sale-button">Schedule</button>
-      </div>
-    </section>
-
-    <!-- Sale Entry Section -->
-    <section class="entry">
-      <header class="header">
-        <h2>Sale Entry</h2>
-        <p>Enter details of sales made</p>
-      </header>
-
-      <!-- Add Sales Form -->
-      <form id="add-sales-form" class="styled-form">
-        <h3>Add Sale</h3>
-        <label for="produce-name">Produce Name</label>
-        <input type="text" id="produce-name" placeholder="Enter produce name" required />
-
-        <label for="quantity-sold">Quantity Sold</label>
-        <input type="number" id="quantity-sold" required />
-
-        <label for="sale-date">Sale Date</label>
-        <input type="date" id="sale-date" required />
-
-        <label for="sale-price">Sale Price</label>
-        <input type="number" id="sale-price" step="0.01" required />
-
-        <label for="buyer-name">Buyer Name</label>
-        <input type="text" id="buyer-name" required />
-
-        <label for="buyer-contact">Buyer Contact</label>
-        <input type="text" id="buyer-contact" required />
-
+    <!-- Add New Sale Form -->
+    <div class="add-sale-form">
+      <h3>Add New Sale</h3>
+      <form id="add-sale-form">
+        <input type="text" id="produce-type" placeholder="Produce Type" required>
+        <input type="number" id="quantity-sold" placeholder="Quantity Sold" required>
+        <input type="number" id="sale-price" placeholder="Sale Price ($)" required>
+        <input type="date" id="sale-date" required>
+        <input type="text" id="buyer-name" placeholder="Buyer Name" required>
+        <input type="text" id="buyer-contact" placeholder="Buyer Contact" required>
         <button type="submit" class="btn-primary">Add Sale</button>
       </form>
-    </section>
+    </div>
 
-    <!-- Scheduled Sale Section -->
-    <section id="schedule-sale" class="styled-section">
-      <h2>Schedule Sale</h2>
-      <button id="schedule-sale-button" class="btn-secondary">Schedule Sale</button>
-      <form id="schedule-sale-form" class="styled-form" style="display: none;">
-        <label for="scheduled-buyer-name">Buyer Name</label>
-        <input type="text" id="scheduled-buyer-name" required />
+    <!-- Sales Table -->
+    <div class="sales-table">
+      <table id="sales-table">
+        <thead>
+          <tr>
+            <th>Produce</th>
+            <th>Quantity</th>
+            <th>Price ($)</th>
+            <th>Date</th>
+            <th>Buyer</th>
+            <th>Contact</th>
+            <th>Actions</th> <!-- Keep actions for delete functionality -->
+          </tr>
+        </thead>
+        <tbody id="sales-body">
+          <!-- Sales data loads here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-        <label for="scheduled-sale-date">Sale Date</label>
-        <input type="date" id="scheduled-sale-date" required />
+  <!-- Schedule Sale Section -->
+  <div id="schedule-sale-section" class="tab-content hidden">
+    <h2>Schedule Sale</h2>
 
-        <label for="scheduled-produce-type">Produce Type</label>
-        <input type="text" id="scheduled-produce-type" required />
+    <!-- Schedule Sale Form -->
+    <form id="schedule-sale-form">
+      <input type="text" id="scheduled-buyer-name" placeholder="Buyer Name" required>
+      <input type="date" id="scheduled-sale-date" required>
+      <input type="text" id="scheduled-produce-type" placeholder="Produce Type" required>
+      <button type="submit" class="btn-primary">Schedule Sale</button>
+    </form>
 
-        <button type="submit" class="btn-primary">Add Scheduled Sale</button>
-      </form>
-    </section>
+    <!-- Scheduled Sales Table -->
+    <div class="scheduled-sales-table">
+      <table id="scheduled-sales-table">
+        <thead>
+          <tr>
+            <th>Buyer</th>
+            <th>Produce</th>
+            <th>Scheduled Date</th>
+          </tr>
+        </thead>
+        <tbody id="scheduled-sales-body">
+          <!-- Scheduled sales data loads here -->
+        </tbody>
+      </table>
+    </div>
 
-    <!-- Recent Sales Section -->
-    <section id="recent-sales" class="styled-section">
-      <h2>Recent Sales</h2>
-      <div id="sales-list"></div>
-    </section>
+  </div>
+</section>
 
-    <!-- Recent Notifications Section -->
-    <section id="recent-notifications" class="styled-section">
-      <h2>Recent Notifications</h2>
-      <div id="notifications-list"></div>
-    </section>
-  </main>
+<script type="module" src="sales.js"></script>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
-  </footer>
-
-  <!-- Scripts -->
-  <script src="auth.js" type="module"></script>
-  <script src="sales.js" type="module"></script>
 </body>
 </html>
-
-
-
-

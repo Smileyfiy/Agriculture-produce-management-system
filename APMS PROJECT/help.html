@@ -2,69 +2,112 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agricultural Produce Management System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APMS Help Center</title>
   <link rel="stylesheet" href="generalstyles.css">
+  <link rel="stylesheet" href="help.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="logo">
-      <img src="APMS Logo.png" alt="Logo">
-      <span>APMS</span>
-    </div>
-    <ul class="nav-links">
-      <li><a href="Homepage.html">Dashboard</a></li>
-      <li><a href="Produce.html">Produce</a></li>    
-      <li><a href="Sales.html">Sales</a></li>
-      <li><a href="Reports.html">Reports</a></li>
-    </ul>
 
-    <!--Dropdown menu hidden at user icon -->
-    <div class="user-profile">
-      <img src="User Icon.png" alt="User Icon.png" class="user-icon">
-      <div class="dropdown-menu">
-        <a href="Account.html">Account</a>
-        <a href="Notifications.html">Notifications</a>
-        
-        <a href="Help.html">Help</a>
-        <button class="logoutButton" id="logoutButton">Logout</button>
-        
-      </div>
-    </div>
-  </nav>
-  <!-- Help Page Content -->
-  <main class="help-content">
-    <!-- How-To Video Tutorials Section -->
-    <section class="video-tutorials">
-      <h2>How-To Video Tutorials</h2>
-      <p>Learn how to use the Agricultural Produce Management System with our step-by-step video tutorials:</p>
-      <ul>
-        <li><a href="https://www.example.com/tutorial1" target="_blank">Getting Started with APMS</a></li>
-        <li><a href="https://www.example.com/tutorial2" target="_blank">Managing Produce</a></li>
-        <li><a href="https://www.example.com/tutorial3" target="_blank">Tracking Sales</a></li>
-        <li><a href="https://www.example.com/tutorial4" target="_blank">Generating Reports</a></li>
-      </ul>
-    </section>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">
+    <img src="APMS Logo.png" alt="Logo">
+    <span>APMS</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="Homepage.html">Dashboard</a></li>
+    <li><a href="Produce.html">Produce</a></li>
+    <li><a href="Sales.html">Sales</a></li>
+    <li><a href="Reports.html">Reports</a></li>
+    <li><a href="Notifications.html">Notifications</a></li>
+    <li><a href="#" class="active">Help</a></li>
+  </ul>
 
-    <!-- About Us and Contact Us Section -->
-    <section class="about-contact">
-      <h2>About Us</h2>
-      <p>At Agricultural Produce Management System (APMS), our mission is to empower farmers and agricultural businesses with efficient tools to manage their produce, sales, and reports. We aim to streamline agricultural operations and promote sustainable farming practices.</p>
-      
-      <h2>Contact Us</h2>
-      <p>If you have any questions or need assistance, feel free to reach out to us:</p>
-      <ul>
-      <li>Email: <a href="johnotieno177@students.uonbi.ac.ke">apms@support.com</a></li>
-      <li>Phone: +254700539776</li>
-      </ul>
-    </section>
-  </main>
-  <script src="auth.js" type="module"></script>
-</body>  
-  
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Agricultural Produce Management System. All rights reserved.</p>
-  </footer>
+  <div class="user-profile">
+    <img src="User Icon.png" alt="User Icon" class="user-icon" />
+    <div class="dropdown-menu">
+      <a href="Account.html">Account</a>
+      <button class="logoutButton" id="logoutButton">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Help Hero Section -->
+<section class="help-hero">
+  <h1>Need Help?</h1>
+  <p>Find answers to common questions or contact our team directly.</p>
+  <button id="download-guide" class="btn-primary">📄 Download User Guide</button>
+</section>
+
+<!-- FAQs Section -->
+<section class="faq-section">
+  <h2>Frequently Asked Questions</h2>
+
+  <div class="faq-item">
+    <button class="faq-question">How do I create a report?</button>
+    <div class="faq-answer">
+      Click the "+ Create New Report" button on the Reports page and fill in the required details.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question">How do I schedule a sale?</button>
+    <div class="faq-answer">
+      Go to Sales, click "Schedule Sale", and enter the buyer details and sale date.
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question">Can I export my data?</button>
+    <div class="faq-answer">
+      Yes! On the Reports page, click "Export PDF" on any report to download it.
+    </div>
+  </div>
+
+</section>
+
+<!-- Tutorial Videos Section -->
+<section class="tutorial-videos">
+  <h2>Tutorial Videos</h2>
+
+  <div class="videos-container">
+    <div class="video-item">
+      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
+        📹 How to Create a Report
+      </a>
+    </div>
+
+    <div class="video-item">
+      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
+        📹 How to Schedule a Sale
+      </a>
+    </div>
+
+    <div class="video-item">
+      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
+        📹 How to Export Reports to PDF
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Support -->
+<section class="contact-support">
+  <h2>Contact Support</h2>
+  <form id="support-form">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="email" placeholder="Your Email" required>
+    <textarea id="message" placeholder="Your Message..." required></textarea>
+    <button type="submit" class="btn-primary">Send Message</button>
+  </form>
+  <div id="form-status" class="form-status"></div>
+</section>
+
+<!-- Scripts -->
+<script src="Help.js"></script>
+
+</body>
+</html>

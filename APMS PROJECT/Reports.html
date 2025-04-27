@@ -4,11 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>APMS Reports</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="reports.css">
   <link rel="stylesheet" href="generalstyles.css">
+  <link rel="stylesheet" href="reports.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">
@@ -17,67 +21,80 @@
     </div>
     <ul class="nav-links">
       <li><a href="Homepage.html">Dashboard</a></li>
-      <li><a href="Produce.html">Produce</a></li>    
+      <li><a href="Produce.html">Produce</a></li>
       <li><a href="Sales.html">Sales</a></li>
       <li><a href="#" class="active">Reports</a></li>
     </ul>
-
-    <!-- User Dropdown -->
     <div class="user-profile">
-      <img src="User Icon.png" alt="User Icon.png" class="user-icon" />
+      <img src="User Icon.png" alt="User Icon" class="user-icon" />
       <div class="dropdown-menu">
         <a href="Account.html">Account</a>
         <a href="Notifications.html">Notifications</a>
-
         <a href="Help.html">Help</a>
         <button class="logoutButton" id="logoutButton">Logout</button>
       </div>
     </div>
   </nav>
 
-  <!-- Main Content -->
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Main Reports Section -->
   <main class="reports-container">
-    <!-- Report Generator Modal -->
-    <div class="modal" id="report-modal">
+    <div class="reports-header">
+      <h1>Analytics Reports</h1>
+      <p>Manage your reports, track your farm's progress, and export your data easily.</p>
+      <button id="open-report-modal" class="btn-primary">+ Create New Report</button>
+    </div>
+<br> <br> 
+    <div class="reports-intro">
+      
+    <!-- Filter Buttons -->
+    <div class="filter-buttons">
+      <button class="btn-secondary" onclick="filterReports('all')">All</button>
+      <button class="btn-secondary" onclick="filterReports('sales')">Sales</button>
+      <button class="btn-secondary" onclick="filterReports('totalSales')">Total Sales</button>
+      <button class="btn-secondary" onclick="filterReports('inventory')">Inventory</button>
+      <button class="btn-secondary" onclick="filterReports('produce')">Produce</button>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal hidden">
       <div class="modal-content">
-        <h2>Create New Report</h2>
-        <form id="report-form">
+        <div class="modal-header">
+          <h2>Create New Report</h2>
+          <button id="close-report-modal" class="close-button">&times;</button>
+        </div>
+
+        <form id="generate-report-form">
           <div class="input-group">
-            <label>Report Type</label>
-            <div class="type-selector">
-              <div class="type-card" data-type="sales">
-                <i class="fas fa-chart-line"></i>
-                <span>Sales</span>
-              </div>
-              <div class="type-card" data-type="inventory">
-                <i class="fas fa-boxes"></i>
-                <span>Inventory</span>
-              </div>
-              <div class="type-card" data-type="produce">
-                <i class="fas fa-seedling"></i>
-                <span>Produce</span>
-              </div>
-              <div class="type-card" data-type="totalSales">
-                <i class="fas fa-dollar-sign"></i>
-                <span>Total Sales</span>
-              </div>
-            </div>
+            <label for="report-type">Report Type</label>
+            <select id="report-type" required>
+              <option value="">Select Report Type</option>
+              <option value="sales">Sales Report</option>
+              <option value="inventory">Inventory Report</option>
+              <option value="produce">Produce Report</option>
+              <option value="totalSales">Total Sales Report</option>
+            </select>
           </div>
-          
-          <div class="date-range-picker">
-            <div class="input-group">
-              <label>Start Date</label>
-              <input type="date" id="report-start" required>
-            </div>
-            <div class="input-group">
-              <label>End Date</label>
-              <input type="date" id="report-end" required>
-            </div>
+
+          <div class="input-group">
+            <label for="start-date">Start Date</label>
+            <input type="date" id="start-date" required>
           </div>
-          
+
+          <div class="input-group">
+            <label for="end-date">End Date</label>
+            <input type="date" id="end-date" required>
+          </div>
+
           <div class="form-actions">
-            <button type="button" class="btn-secondary" id="cancel-report">Cancel</button>
-            <button type="submit" class="btn-primary">Generate</button>
+            <button type="button" id="cancel-report" class="btn-secondary">Cancel</button>
+            <button type="submit" id="generate-report-button" class="btn-primary">Generate Report</button>
+          </div>
+
+          <div id="report-loading" class="loading-spinner hidden">
+            Generating report...
           </div>
         </form>
       </div>
@@ -85,26 +102,14 @@
 
     <!-- Reports Dashboard -->
     <section class="reports-dashboard">
-      <div class="reports-header">
-        <h1>Analytics Reports</h1>
-        <div class="view-controls">
-          <button class="view-toggle active" data-view="grid">
-            <i class="fas fa-th"></i>
-          </button>
-          <button class="view-toggle" data-view="list">
-            <i class="fas fa-list"></i>
-          </button>
-        </div>
+      <div id="reports-container" class="reports-grid">
+        <!-- Reports appear here -->
       </div>
-
-      <div class="reports-grid" id="reports-container">
-        <!-- Dynamic report cards will be inserted here -->
-      </div>
+      <button id="load-more-button" class="btn-primary hidden">Load More</button>
     </section>
   </main>
 
-  <!-- External Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- JS -->
   <script type="module" src="Reports.js"></script>
 </body>
 </html>

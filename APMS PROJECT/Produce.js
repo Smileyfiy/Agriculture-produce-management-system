@@ -9,7 +9,6 @@ import {
   get,
 } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 import { app } from "./firebaseconnection.js";
-import { sendNotification } from "./Notifications.js";
 
 const auth = getAuth(app);
 const database = getDatabase(app);

@@ -1,201 +1,388 @@
-import { database } from './firebaseconnection.js';
-import { ref, get, set, push, query, orderByChild, startAt, endAt } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-import { auth } from './firebaseconnection.js'; // For user authentication
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getDatabase, ref, get, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { app } from './firebaseconnection.js';
 
-// UI Elements
-const reportsContainer = document.getElementById('reports-container');
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// Elements
+const openModalBtn = document.getElementById('open-report-modal');
+const closeModalBtn = document.getElementById('close-report-modal');
+const cancelBtn = document.getElementById('cancel-report');
 const reportModal = document.getElementById('report-modal');
-const reportForm = document.getElementById('report-form');
+const generateForm = document.getElementById('generate-report-form');
+const loadingSpinner = document.getElementById('report-loading');
+const reportsContainer = document.getElementById('reports-container');
 
-// Report Types Configuration
-const reportConfig = {
-  sales: {
-    icon: 'chart-line',
-    fields: ['produceName', 'quantity', 'pricePerUnit', 'saleDate']
-  },
-  inventory: {
-    icon: 'boxes',
-    fields: ['name', 'category', 'quantity', 'dateAdded']
-  },
-  produce: {
-    icon: 'seedling',
-    fields: ['name', 'category', 'quantity', 'dateAdded']
-  },
-  totalSales: { // New report type
-    icon: 'dollar-sign',
-    fields: ['produceName', 'totalQuantity', 'totalRevenue']
-  }
-};
-
-// Initialize Reports
-document.addEventListener('DOMContentLoaded', () => {
-  loadSavedReports();
-  setupEventListeners();
+// Open modal
+openModalBtn.addEventListener('click', () => {
+  reportModal.classList.remove('hidden');
 });
 
-function setupEventListeners() {
- 
+// Close modal
+closeModalBtn.addEventListener('click', () => {
+  reportModal.classList.add('hidden');
+});
 
-  reportForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(reportForm);
-    const reportType = document.querySelector('.type-card.selected').dataset.type;
-    const startDate = new Date(document.getElementById('report-start').value);
-    const endDate = new Date(document.getElementById('report-end').value);
-    
-    await generateReport(reportType, startDate, endDate);
-    
-  });
+// Cancel button
+cancelBtn.addEventListener('click', () => {
+  reportModal.classList.add('hidden');
+});
 
-  document.querySelectorAll('.type-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-    });
-  });
+// Toast
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast show ${type}`;
+
+  setTimeout(() => {
+    toast.className = 'toast hidden';
+  }, 4000);
 }
 
-async function generateReport(type, start, end) {
+let allReportCards = [];
+let reportsPerPage = 10;
+let currentIndex = 0;
+
+// Load Reports
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace("Login.html");
+    return;
+  }
+
+  generateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await generateReport(user.uid);
+  });
+
+  onValue(ref(database, `reports/${user.uid}`), (snapshot) => {
+    reportsContainer.innerHTML = "";
+    allReportCards = [];
+    currentIndex = 0;
+
+    if (!snapshot.exists()) {
+      reportsContainer.innerHTML = "<p>No reports found.</p>";
+      return;
+    }
+
+    const reportsArray = [];
+    snapshot.forEach(childSnapshot => {
+      const report = childSnapshot.val();
+      const id = childSnapshot.key;
+      reportsArray.push({ report, id });
+    });
+
+    // Sort reports by date DESCENDING
+    reportsArray.sort((a, b) => b.report.dateCreated - a.report.dateCreated);
+
+    // Save all cards
+    reportsArray.forEach(({ report, id }) => {
+      const card = createReportCard(report, id);
+      card.classList.add('hide');
+      reportsContainer.appendChild(card);
+      allReportCards.push(card);
+    });
+
+    showNextReports();
+  });
+});
+
+// Show next 10 reports
+function showNextReports() {
+  const nextReports = allReportCards.slice(currentIndex, currentIndex + reportsPerPage);
+  nextReports.forEach(card => card.classList.remove('hide'));
+  currentIndex += reportsPerPage;
+
+  const loadMoreBtn = document.getElementById('load-more-button');
+  if (currentIndex >= allReportCards.length) {
+    loadMoreBtn.classList.add('hidden');
+  } else {
+    loadMoreBtn.classList.remove('hidden');
+  }
+}
+
+// Hook View More Button
+document.getElementById('load-more-button').addEventListener('click', showNextReports);
+
+// Generate Report
+async function generateReport(userId) {
+  const reportType = document.getElementById('report-type').value;
+  const startDate = new Date(document.getElementById('start-date').value);
+  const endDate = new Date(document.getElementById('end-date').value);
+
+  if (!reportType || !startDate || !endDate) {
+    showToast("❌ Please fill all fields.", "error");
+    return;
+  }
+
   try {
-    const reportData = await fetchReportData(type, start, end);
-    const reportId = push(ref(database, `reports/${userId}`)).key;
-    
-    const reportPayload = {
-      reportType: type,
+    loadingSpinner.classList.remove('hidden');
+
+    let content = {};
+
+    if (reportType === 'sales') {
+      const salesSnapshot = await get(ref(database, `sales/${userId}`));
+      if (salesSnapshot.exists()) {
+        salesSnapshot.forEach(childSnapshot => {
+          const sale = childSnapshot.val();
+          const saleDate = new Date(sale.saleDate);
+          if (saleDate >= startDate && saleDate <= endDate) {
+            content[childSnapshot.key] = sale;
+          }
+        });
+      }
+    }
+
+    if (reportType === 'totalSales') {
+      const salesSnapshot = await get(ref(database, `sales/${userId}`));
+      if (salesSnapshot.exists()) {
+        salesSnapshot.forEach(childSnapshot => {
+          const sale = childSnapshot.val();
+          if (!content[sale.produceType]) {
+            content[sale.produceType] = { quantitySold: 0, totalRevenue: 0 };
+          }
+          content[sale.produceType].quantitySold += sale.quantitySold;
+          content[sale.produceType].totalRevenue += sale.salePrice;
+        });
+      }
+    }
+
+    if (reportType === 'inventory' || reportType === 'produce') {
+      const produceSnapshot = await get(ref(database, `produce/${userId}`));
+      if (produceSnapshot.exists()) {
+        produceSnapshot.forEach(childSnapshot => {
+          content[childSnapshot.key] = childSnapshot.val();
+        });
+      }
+    }
+
+    const reportData = {
+      reportType: reportType,
       dateCreated: Date.now(),
-      dateRange: {
-        start: start.getTime(),
-        end: end.getTime()
-      },
-      content: JSON.stringify(reportData)
+      dateRange: { start: startDate.getTime(), end: endDate.getTime() },
+      content: JSON.stringify(content)
     };
 
-    await set(ref(database, `reports/${userId}/${reportId}`), reportPayload);
-    renderReportCard(reportPayload, reportId);
-    await exportToPDF(reportData, type, start, end);
-    
+    await push(ref(database, `reports/${userId}`), reportData);
+
+    // Add notification for the new report
+    const notificationData = {
+      subject: "New Report Created",
+      message: `A new ${capitalize(reportType)} report has been generated.`,
+      timestamp: new Date().toISOString()
+    };
+
+    await push(ref(database, `notifications/${userId}`), notificationData);
+
+    loadingSpinner.classList.add('hidden');
+    showToast("✅ Report Generated Successfully!", "success");
+    reportModal.classList.add('hidden');
+
   } catch (error) {
-    console.error("Report generation failed:", error);
-    alert("Error generating report. Please try again.");
+    console.error(error);
+    showToast("❌ Failed to generate report!", "error");
+    loadingSpinner.classList.add('hidden');
   }
 }
 
-async function fetchReportData(type, start, end) {
-  if (type === 'totalSales') {
-    const snapshot = await get(ref(database, `sales/${userId}`));
-    if (!snapshot.exists()) return {};
-
-    const salesData = snapshot.val();
-    const totalSales = {};
-
-    // Calculate total sales for each produce
-    Object.values(salesData).forEach((sale) => {
-      const saleDate = new Date(sale.saleDate).getTime();
-      if (saleDate >= start.getTime() && saleDate <= end.getTime()) {
-        const produceName = sale.produceName;
-        if (!totalSales[produceName]) {
-          totalSales[produceName] = { totalQuantity: 0, totalRevenue: 0 };
-        }
-        totalSales[produceName].totalQuantity += sale.quantity;
-        totalSales[produceName].totalRevenue += sale.quantity * sale.pricePerUnit;
-      }
-    });
-
-    return totalSales;
-  }
-
-  // Default behavior for other report types
-  const snapshot = await get(query(
-    ref(database, `${type}/${userId}`),
-    orderByChild('date'),
-    startAt(start.getTime()),
-    endAt(end.getTime())
-  ));
-
-  return snapshot.exists() ? snapshot.val() : {};
-}
-
-function renderReportCard(report, id) {
+// Create Report Card
+function createReportCard(report, id) {
   const card = document.createElement('div');
   card.className = 'report-card';
+  card.dataset.type = report.reportType;
+
+  const chartId = `chart-${id}`;
+  const reportData = JSON.parse(report.content);
+  let reportBody = '';
+
+  if (report.reportType === 'sales') {
+    reportBody = '<ul>';
+    for (const key in reportData) {
+      const sale = reportData[key];
+      reportBody += `<li>🛒 ${sale.produceType} - ${sale.quantitySold} units on ${new Date(sale.saleDate).toLocaleDateString()}</li>`;
+    }
+    reportBody += '</ul>';
+  }
+
+  if (report.reportType === 'totalSales') {
+    reportBody = '<ul>';
+    for (const produce in reportData) {
+      reportBody += `<li>💰 ${produce}: ${reportData[produce].quantitySold} sold, $${reportData[produce].totalRevenue.toFixed(2)}</li>`;
+    }
+    reportBody += '</ul>';
+  }
+
+  if (report.reportType === 'inventory') {
+    reportBody = '<ul>';
+    for (const key in reportData) {
+      const item = reportData[key];
+      reportBody += `<li>📦 ${item.type} - ${item.quantity} units (${item.category})</li>`;
+    }
+    reportBody += '</ul>';
+  }
+
+  if (report.reportType === 'produce') {
+    reportBody = '<ul>';
+    for (const key in reportData) {
+      const item = reportData[key];
+      reportBody += `<li>🌽 ${item.type} - ${item.quantity} harvested (${item.category})</li>`;
+    }
+    reportBody += '</ul>';
+  }
+
   card.innerHTML = `
     <div class="report-header">
-      <div class="report-type">
-        <i class="fas fa-${reportConfig[report.reportType].icon}"></i>
-        <h3>${capitalize(report.reportType)} Report</h3>
+      <h3>${capitalize(report.reportType)} Report</h3>
+      <div>
+        <p>${new Date(report.dateCreated).toLocaleDateString()}</p>
+        <button class="btn-secondary" onclick='exportReportToPDF(${JSON.stringify(report)}, "${id}")'>Export PDF</button>
+        <button class="btn-danger" onclick='deleteReport("${id}")'>Delete</button>
       </div>
-      <span class="report-date">${new Date(report.dateCreated).toLocaleDateString()}</span>
     </div>
-    <div class="report-meta">
-      <p>Date Range: ${new Date(report.dateRange.start).toLocaleDateString()} - 
-      ${new Date(report.dateRange.end).toLocaleDateString()}</p>
-    </div>
-    <div class="report-actions">
-      <button class="btn-primary" onclick="viewReport('${id}')">
-        <i class="fas fa-eye"></i>
-      </button>
-      <button class="btn-primary" onclick="exportReport('${id}')">
-        <i class="fas fa-download"></i>
-      </button>
+    <div class="report-body">
+      ${reportBody}
+      <canvas id="${chartId}" style="margin-top: 20px;"></canvas>
     </div>
   `;
 
-  if (report.reportType === 'totalSales') {
-    const totalSalesData = JSON.parse(report.content);
-    const salesSummary = Object.entries(totalSalesData)
-      .map(([produceName, data]) => `
-        <p>${produceName}: ${data.totalQuantity} units sold, $${data.totalRevenue.toFixed(2)} revenue</p>
-      `)
-      .join('');
-    card.innerHTML += `<div class="report-summary">${salesSummary}</div>`;
-  }
+  // Add card to DOM
+  reportsContainer.appendChild(card);
 
-  reportsContainer.prepend(card);
+  // Wait until DOM is ready to draw chart
+  setTimeout(() => {
+    const ctx = document.getElementById(chartId)?.getContext('2d');
+    if (ctx) {
+      drawChart(ctx, report.reportType, reportData);
+    }
+  }, 50);
+
+  return card;
 }
 
-async function loadSavedReports() {
-  const snapshot = await get(ref(database, `reports/${userId}`));
-  if (snapshot.exists()) {
-    Object.entries(snapshot.val()).forEach(([id, report]) => {
-      renderReportCard(report, id);
+// Draw Mini Chart
+function drawChart(ctx, type, data) {
+  if (type === 'totalSales') {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{
+          label: 'Revenue ($)',
+          data: Object.values(data).map(d => d.totalRevenue),
+          backgroundColor: 'rgba(75,192,192,0.6)',
+          borderColor: 'rgba(75,192,192,1)',
+          borderWidth: 2
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  if (type === 'sales') {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Object.values(data).map(d => new Date(d.saleDate).toLocaleDateString()),
+        datasets: [{
+          label: 'Quantity Sold',
+          data: Object.values(data).map(d => d.quantitySold),
+          borderColor: 'rgba(153,102,255,1)',
+          fill: false,
+          tension: 0.1
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
     });
   }
 }
 
-async function exportToPDF(reportData, type, start, end) {
+// Export Report to PDF
+async function exportReportToPDF(report, id) {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text(`${capitalize(type)} Report`, 10, 10);
-  doc.setFontSize(12);
-  doc.text(`Date Range: ${start.toLocaleDateString()} - ${end.toLocaleDateString()}`, 10, 20);
+  const reportData = JSON.parse(report.content);
+  let y = 10;
 
-  if (type === 'totalSales') {
-    let y = 30;
-    Object.entries(reportData).forEach(([produceName, data]) => {
-      doc.text(`${produceName}: ${data.totalQuantity} units sold, $${data.totalRevenue.toFixed(2)} revenue`, 10, y);
-      y += 10;
-    });
-  } else {
-    // Default behavior for other report types
-    let y = 30;
-    Object.entries(reportData).forEach(([key, value]) => {
-      doc.text(`${key}: ${JSON.stringify(value)}`, 10, y);
-      y += 10;
-    });
+  doc.setFontSize(18);
+  doc.text(`${capitalize(report.reportType)} Report`, 10, y);
+  y += 10;
+  doc.setFontSize(12);
+  doc.text(`Generated: ${new Date(report.dateCreated).toLocaleDateString()}`, 10, y);
+  y += 10;
+
+  if (report.reportType === 'sales') {
+    for (const key in reportData) {
+      const sale = reportData[key];
+      doc.text(`🛒 ${sale.produceType} - ${sale.quantitySold} units (${new Date(sale.saleDate).toLocaleDateString()})`, 10, y);
+      y += 7;
+    }
   }
 
-  doc.save(`${type}-report.pdf`);
+  if (report.reportType === 'totalSales') {
+    for (const produce in reportData) {
+      const item = reportData[produce];
+      doc.text(`💰 ${produce}: ${item.quantitySold} sold, $${item.totalRevenue.toFixed(2)}`, 10, y);
+      y += 7;
+    }
+  }
+
+  if (report.reportType === 'inventory' || report.reportType === 'produce') {
+    for (const key in reportData) {
+      const item = reportData[key];
+      doc.text(`🌽 ${item.type} - ${item.quantity} units - ${item.category}`, 10, y);
+      y += 7;
+    }
+  }
+
+  doc.save(`${report.reportType}-report-${id}.pdf`);
 }
 
-document.getElementById('new-report-btn').addEventListener('click', () => {
-  reportModal.style.display = 'block';
-});
+// Filter Reports by Type
+function filterReports(type) {
+  const allReports = document.querySelectorAll('.report-card');
+  allReports.forEach(report => {
+    if (type === 'all' || report.dataset.type === type) {
+      report.style.display = 'block';
+    } else {
+      report.style.display = 'none';
+    }
+  });
+}
 
-document.getElementById('cancel-report').addEventListener('click', () => {
-  reportModal.style.display = 'none';
-});
 
+// Capitalize Helper
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+window.filterReports = filterReports;
+window.exportReportToPDF = exportReportToPDF;
+window.showToast = showToast;
+window.deleteReport = async function (id) {
+  if (confirm("Are you sure you want to delete this report? This cannot be undone.")) {
+    const user = auth.currentUser;
+    if (!user) {
+      showToast("❌ You must be logged in to delete.", "error");
+      return;
+    }
+
+    try {
+      // Remove the report from the database
+      await remove(ref(database, `reports/${user.uid}/${id}`));
+
+      // Remove the report card from the DOM
+      const reportCard = document.querySelector(`.report-card[data-id="${id}"]`);
+      if (reportCard) {
+        reportCard.remove();
+      }
+
+      showToast("🗑️ Report deleted successfully!", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("❌ Failed to delete report.", "error");
+    }
+  }
+};
+
