@@ -133,3 +133,23 @@ input, select {
 .produce-table tbody tr:hover {
   background-color: #f9f9f9;
 }
+
+.produce-summary {
+  margin-top: 2rem;
+  text-align: left;
+  background: white;
+  padding: 2rem;
+  border-radius: 25px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  max-width: 400px;
+  align-self: center;
+  margin-left: 350px;
+}
+
+.produce-summary h2 {
+  margin-bottom: 1rem;
+}
+
+#individual-produce-list p {
+  margin: 0.5rem 0;
+}

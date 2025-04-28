@@ -37,44 +37,59 @@ function loadStorageLocations(userId) {
 
 // Load Produce Items into Table
 function loadProduce(userId) {
-  try {
-    console.log("👀 Starting to load produce for user:", userId);
-    const produceRef = ref(database, `produce/${userId}`);
+  const produceRef = ref(database, `produce/${userId}`);
+  onValue(produceRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      console.log("🚫 No produce found for this user.");
+      tableBody.innerHTML = `<tr><td colspan="6">No produce found. Add some!</td></tr>`;
+      document.getElementById('total-quantity').textContent = `Total Quantity: 0`;
+      document.getElementById('individual-produce-list').innerHTML = "";
+      return;
+    }
     
-    onValue(produceRef, (snapshot) => {
-      if (!snapshot.exists()) {
-        console.log("🚫 No produce found for this user.");
-        tableBody.innerHTML = `<tr><td colspan="6">No produce found. Add some!</td></tr>`;
-        return;
+    tableBody.innerHTML = ""; // Clear old rows
+    let totalQuantity = 0;
+    const produceCounts = {}; // { Tomatoes: 500, Onions: 300, etc. }
+    
+    snapshot.forEach(childSnapshot => {
+      const produce = childSnapshot.val();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${produce.produceType}</td>
+        <td>${produce.quantity}</td>
+        <td>${produce.harvestDate}</td>
+        <td>${produce.category}</td>
+        <td>${produce.storageLocation}</td>
+        <td>
+          <button class="btn-delete" onclick="deleteProduce('${childSnapshot.key}')">🗑️ Delete</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
+
+      // Update totals
+      totalQuantity += produce.quantity;
+      if (produce.produceType in produceCounts) {
+        produceCounts[produce.produceType] += produce.quantity;
+      } else {
+        produceCounts[produce.produceType] = produce.quantity;
       }
-      
-      console.log("📥 Produce snapshot:", snapshot.val());
-      
-      tableBody.innerHTML = ""; // Clear old rows
-      
-      snapshot.forEach(childSnapshot => {
-        const produce = childSnapshot.val();
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${produce.produceType || "Unknown"}</td>
-          <td>${produce.quantity || 0}</td>
-          <td>${produce.harvestDate || "N/A"}</td>
-          <td>${produce.category || "Uncategorized"}</td>
-          <td>${produce.storageLocation || "Unknown"}</td>
-          <td>
-            <button class="btn-delete" onclick="deleteProduce('${childSnapshot.key}')">🗑️ Delete</button>
-          </td>
-        `;
-        tableBody.appendChild(tr);
-      });
-    }, (error) => {
-      console.error("❌ Error fetching produce:", error);
-      tableBody.innerHTML = `<tr><td colspan="6">Error loading produce. Please try again later.</td></tr>`;
     });
-  } catch (err) {
-    console.error("❗ Exception in loadProduce:", err);
-    tableBody.innerHTML = `<tr><td colspan="6">An unexpected error occurred. Please try again later.</td></tr>`;
-  }
+
+    // Update total quantity
+    document.getElementById('total-quantity').textContent = `Total Quantity: ${totalQuantity}`;
+
+    // Update individual produce list
+    const produceListDiv = document.getElementById('individual-produce-list');
+    produceListDiv.innerHTML = "";
+    for (const [type, qty] of Object.entries(produceCounts)) {
+      const p = document.createElement('p');
+      p.textContent = `${type}: ${qty}`;
+      produceListDiv.appendChild(p);
+    }
+  }, (error) => {
+    console.error("❌ Error fetching produce:", error);
+    tableBody.innerHTML = `<tr><td colspan="6">🚫 You don't have permission to view produce data. Please contact support.</td></tr>`;
+  });
 }
 
 // Delete Produce Item
