@@ -7,9 +7,9 @@ const database = getDatabase(app);
 
 const addProduceForm = document.getElementById('add-produce-form');
 const addStorageForm = document.getElementById('add-storage-form');
-const produceCards = document.getElementById('produce-cards');
 const storageLocationSelect = document.getElementById('storage-location');
 const toast = document.getElementById('toast');
+const tableBody = document.getElementById('produce-table-body');
 
 function showToast(message) {
   toast.textContent = message;
@@ -35,43 +35,76 @@ function loadStorageLocations(userId) {
   });
 }
 
-// Load Produce Items
+// Load Produce Items into Table
 function loadProduce(userId) {
-  onValue(ref(database, `produce/${userId}`), (snapshot) => {
-    produceCards.innerHTML = "";
-    snapshot.forEach(childSnapshot => {
-      const produce = childSnapshot.val();
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3>${produce.produceType}</h3>
-        <p><strong>Quantity:</strong> ${produce.quantity}</p>
-        <p><strong>Harvest Date:</strong> ${produce.harvestDate}</p>
-        <p><strong>Category:</strong> ${produce.category}</p>
-        <p><strong>Storage:</strong> ${produce.storageLocation}</p>
-        <div class="card-buttons">
-          <button class="btn-delete" onclick="deleteProduce('${childSnapshot.key}')">🗑️ Delete</button>
-        </div>
-      `;
-      produceCards.appendChild(card);
+  try {
+    console.log("👀 Starting to load produce for user:", userId);
+    const produceRef = ref(database, `produce/${userId}`);
+    
+    onValue(produceRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        console.log("🚫 No produce found for this user.");
+        tableBody.innerHTML = `<tr><td colspan="6">No produce found. Add some!</td></tr>`;
+        return;
+      }
+      
+      console.log("📥 Produce snapshot:", snapshot.val());
+      
+      tableBody.innerHTML = ""; // Clear old rows
+      
+      snapshot.forEach(childSnapshot => {
+        const produce = childSnapshot.val();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${produce.produceType || "Unknown"}</td>
+          <td>${produce.quantity || 0}</td>
+          <td>${produce.harvestDate || "N/A"}</td>
+          <td>${produce.category || "Uncategorized"}</td>
+          <td>${produce.storageLocation || "Unknown"}</td>
+          <td>
+            <button class="btn-delete" onclick="deleteProduce('${childSnapshot.key}')">🗑️ Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }, (error) => {
+      console.error("❌ Error fetching produce:", error);
+      tableBody.innerHTML = `<tr><td colspan="6">Error loading produce. Please try again later.</td></tr>`;
     });
-  });
+  } catch (err) {
+    console.error("❗ Exception in loadProduce:", err);
+    tableBody.innerHTML = `<tr><td colspan="6">An unexpected error occurred. Please try again later.</td></tr>`;
+  }
 }
 
+// Delete Produce Item
 window.deleteProduce = async function(id) {
   const user = auth.currentUser;
   if (!user) return;
+
+  // Confirmation prompt
+  const confirmation = confirm("Are you sure you want to delete this produce entry?");
+  if (!confirmation) {
+    return; // User cancelled
+  }
+
   await remove(ref(database, `produce/${user.uid}/${id}`));
   showToast("🗑️ Produce deleted!");
 };
 
+// Authentication and Initialization
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "Login.html";
     return;
   }
 
+  console.log("✅ User authenticated:", user.uid); // DEBUG
+
+  // Load Produce Items into Table
   loadProduce(user.uid);
+
+  // Load Storage Locations into Dropdown
   loadStorageLocations(user.uid);
 
   // Add Produce
