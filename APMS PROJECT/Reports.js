@@ -1,395 +1,322 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getDatabase, ref, get, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, push, get, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 import { app } from './firebaseconnection.js';
 
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-// Elements
-const openModalBtn = document.getElementById('open-report-modal');
-const closeModalBtn = document.getElementById('close-report-modal');
-const cancelBtn = document.getElementById('cancel-report');
-const reportModal = document.getElementById('report-modal');
-const generateForm = document.getElementById('generate-report-form');
-const loadingSpinner = document.getElementById('report-loading');
+// DOM Elements
+const reportForm = document.getElementById('report-form');
+const startDateInput = document.getElementById('start-date');
+const endDateInput = document.getElementById('end-date');
+const reportTypeInput = document.getElementById('report-type');
 const reportsContainer = document.getElementById('reports-container');
+const toast = document.getElementById('toast');
 
-// Open modal
-openModalBtn.addEventListener('click', () => {
-  reportModal.classList.remove('hidden');
-});
+// Modal Controls
+const openReportModalButton = document.getElementById('open-report-modal');
+const reportModal = document.getElementById('report-modal');
+const closeReportModalButton = document.getElementById('close-report-modal');
+const cancelReportButton = document.getElementById('cancel-report');
 
-// Close modal
-closeModalBtn.addEventListener('click', () => {
-  reportModal.classList.add('hidden');
-});
+let currentUserId = null;
 
-// Cancel button
-cancelBtn.addEventListener('click', () => {
-  reportModal.classList.add('hidden');
-});
-
-// Toast
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.className = `toast show ${type}`;
-
-  setTimeout(() => {
-    toast.className = 'toast hidden';
-  }, 4000);
+// ----- Modal Event Listeners -----
+if (openReportModalButton) {
+  openReportModalButton.addEventListener('click', () => {
+    reportModal.classList.remove('hidden');
+  });
+}
+if (closeReportModalButton) {
+  closeReportModalButton.addEventListener('click', () => {
+    reportModal.classList.add('hidden');
+  });
+}
+if (cancelReportButton) {
+  cancelReportButton.addEventListener('click', () => {
+    reportModal.classList.add('hidden');
+  });
 }
 
-let allReportCards = [];
-let reportsPerPage = 10;
-let currentIndex = 0;
+// ----- Toast Function -----
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  toast.classList.remove('hidden');
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.classList.add('hidden');
+  }, 3000);
+}
 
-// Load Reports
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.replace("Login.html");
-    return;
+// ----- Format Report Type -----
+function formatReportType(type) {
+  switch (type) {
+    case 'produce': return 'Produce Report';
+    case 'inventory': return 'Inventory Report';
+    case 'sales': return 'Sales Report';
+    case 'totalSales': return 'Total Sales Report';
+    case 'weeklySales': return 'Weekly Sales Report';
+    default: return type;
   }
+}
 
-  generateForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    await generateReport(user.uid);
-  });
+// ----- Load Saved Reports -----
+function loadSavedReports(userId) {
+  const reportsRef = ref(database, `reports/${userId}`);
+  reportsContainer.innerHTML = '<p>Loading reports...</p>';
+  
+  onValue(reportsRef, (snapshot) => {
+    console.log('snapshot.exists()?', snapshot.exists());
+    console.log('snapshot.val()', snapshot.val());
 
-  onValue(ref(database, `reports/${user.uid}`), (snapshot) => {
-    reportsContainer.innerHTML = "";
-    allReportCards = [];
-    currentIndex = 0;
+    reportsContainer.innerHTML = '';
+    if (snapshot.exists()) {
+      const reportsArray = Object.entries(snapshot.val()).sort((a, b) => b[1].dateCreated - a[1].dateCreated);
+      console.log('Reports Array:', reportsArray);
+      reportsArray.forEach(([reportId, report]) => {
+        createReportCard(reportId, report);
+      });
+    } else {
+      reportsContainer.innerHTML = '<p>No reports found. Generate one above.</p>';
+    }
+  }, { onlyOnce: true });
+}
 
-    if (!snapshot.exists()) {
-      reportsContainer.innerHTML = "<p>No reports found.</p>";
+// ----- Create Report Card -----
+function createReportCard(reportId, report) {
+  const card = document.createElement('div');
+  card.className = 'report-card';
+  // Optionally, you could set a data attribute: card.dataset.id = reportId;
+  const reportDate = new Date(report.dateCreated).toLocaleDateString();
+  card.innerHTML = `
+    <h3>${formatReportType(report.reportType)}</h3>
+    <p><strong>Created:</strong> ${reportDate}</p>
+    <div class="report-content" id="report-${reportId}">
+      ${report.content}
+    </div>
+    <button onclick="exportReport('${reportId}')">📄 Export PDF</button>
+    <button onclick="deleteReport('${reportId}')">🗑️ Delete Report</button>
+  `;
+  reportsContainer.appendChild(card);
+
+  // If the report type is sales-based, try to render a chart.
+  if (report.reportType === 'sales' || report.reportType === 'totalSales') {
+    renderChart(reportId, report.content, report.reportType);
+  }
+}
+
+// ----- Render Chart Function -----
+function renderChart(reportId, content, type) {
+  try {
+    const parsedData = JSON.parse(content);
+    let labels = [];
+    let data = [];
+
+    // For sales reports, we expect JSON array; for totalSales, it might be a plain object
+    if (Array.isArray(parsedData)) {
+      labels = parsedData.map(item => item.produceType || 'Unknown');
+      data = parsedData.map(item => type === 'sales' ? item.salePrice : item.quantitySold);
+    } else if (typeof parsedData === 'object' && parsedData !== null) {
+      labels = Object.keys(parsedData);
+      data = Object.values(parsedData).map(item => item.totalRevenue || 0);
+    } else {
+      console.log('No chart to render: parsedData is invalid.');
       return;
     }
 
-    const reportsArray = [];
-    snapshot.forEach(childSnapshot => {
-      const report = childSnapshot.val();
-      const id = childSnapshot.key;
-      reportsArray.push({ report, id });
-    });
+    const ctx = document.createElement('canvas');
+    const container = document.getElementById(`report-${reportId}`);
+    container.innerHTML = ''; // Clear previous content
+    container.appendChild(ctx);
 
-    // Sort reports by date DESCENDING
-    reportsArray.sort((a, b) => b.report.dateCreated - a.report.dateCreated);
-
-    // Save all cards
-    reportsArray.forEach(({ report, id }) => {
-      const card = createReportCard(report, id);
-      card.classList.add('hide');
-      reportsContainer.appendChild(card);
-      allReportCards.push(card);
-    });
-
-    showNextReports();
-  });
-});
-
-// Show next 10 reports
-function showNextReports() {
-  const nextReports = allReportCards.slice(currentIndex, currentIndex + reportsPerPage);
-  nextReports.forEach(card => card.classList.remove('hide'));
-  currentIndex += reportsPerPage;
-
-  const loadMoreBtn = document.getElementById('load-more-button');
-  if (currentIndex >= allReportCards.length) {
-    loadMoreBtn.classList.add('hidden');
-  } else {
-    loadMoreBtn.classList.remove('hidden');
-  }
-}
-
-// Hook View More Button
-document.getElementById('load-more-button').addEventListener('click', showNextReports);
-
-// Generate Report
-async function generateReport(userId) {
-  const reportType = document.getElementById('report-type').value;
-  const startDate = new Date(document.getElementById('start-date').value);
-  const endDate = new Date(document.getElementById('end-date').value);
-
-  if (!reportType || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    showToast("❌ Please fill all fields with valid data.", "error");
-    return;
-  }
-
-  try {
-    loadingSpinner.classList.remove('hidden');
-
-    let content = {};
-
-    if (reportType === 'sales') {
-      const salesSnapshot = await get(ref(database, `sales/${userId}`));
-      if (salesSnapshot.exists()) {
-        salesSnapshot.forEach(childSnapshot => {
-          const sale = childSnapshot.val();
-          const saleDate = new Date(sale.saleDate);
-          if (saleDate >= startDate && saleDate <= endDate) {
-            content[childSnapshot.key] = sale;
-          }
-        });
-      }
-    }
-
-    if (reportType === 'totalSales') {
-      const salesSnapshot = await get(ref(database, `sales/${userId}`));
-      if (salesSnapshot.exists()) {
-        salesSnapshot.forEach(childSnapshot => {
-          const sale = childSnapshot.val();
-          if (!content[sale.produceType]) {
-            content[sale.produceType] = { quantitySold: 0, totalRevenue: 0 };
-          }
-          content[sale.produceType].quantitySold += sale.quantitySold;
-          content[sale.produceType].totalRevenue += sale.salePrice;
-        });
-      }
-    }
-
-    if (reportType === 'inventory' || reportType === 'produce') {
-      const produceSnapshot = await get(ref(database, `produce/${userId}`));
-      if (produceSnapshot.exists()) {
-        produceSnapshot.forEach(childSnapshot => {
-          const produceItem = childSnapshot.val();
-          content[childSnapshot.key] = {
-            produceType: produceItem.produceType || produceItem.type || "Unknown",
-            quantity: produceItem.quantity || 0,
-            harvestDate: produceItem.harvestDate || "Unknown",
-            category: produceItem.category || "Unknown",
-            storageLocation: produceItem.storageLocation || "Unknown",
-          };
-        });
-      }
-    }
-
-    const reportData = {
-      reportType: reportType,
-      dateCreated: Date.now(),
-      dateRange: { start: startDate.getTime(), end: endDate.getTime() },
-      content: JSON.stringify(content)
-    };
-
-    await push(ref(database, `reports/${userId}`), reportData);
-
-    // Add notification for the new report
-    const notificationData = {
-      subject: "New Report Created",
-      message: `A new ${capitalize(reportType)} report has been generated.`,
-      timestamp: new Date().toISOString()
-    };
-
-    await push(ref(database, `notifications/${userId}`), notificationData);
-
-    loadingSpinner.classList.add('hidden');
-    showToast("✅ Report Generated Successfully!", "success");
-    reportModal.classList.add('hidden');
-
-  } catch (error) {
-    console.error(error);
-    showToast("❌ Failed to generate report!", "error");
-    loadingSpinner.classList.add('hidden');
-  }
-}
-
-// Create Report Card
-function createReportCard(report, id) {
-  const card = document.createElement('div');
-  card.className = 'report-card';
-  card.dataset.type = report.reportType;
-
-  const chartId = `chart-${id}`;
-  const reportData = JSON.parse(report.content);
-  let reportBody = '';
-
-  if (report.reportType === 'sales') {
-    reportBody = '<ul>';
-    for (const key in reportData) {
-      const sale = reportData[key];
-      reportBody += `<li>🛒 ${sale.produceType} - ${sale.quantitySold} units on ${new Date(sale.saleDate).toLocaleDateString()}</li>`;
-    }
-    reportBody += '</ul>';
-  }
-
-  if (report.reportType === 'totalSales') {
-    reportBody = '<ul>';
-    for (const produce in reportData) {
-      reportBody += `<li>💰 ${produce}: ${reportData[produce].quantitySold} sold, $${reportData[produce].totalRevenue.toFixed(2)}</li>`;
-    }
-    reportBody += '</ul>';
-  }
-
-  if (report.reportType === 'inventory') {
-    reportBody = '<ul>';
-    for (const key in reportData) {
-      const item = reportData[key];
-      reportBody += `<li>📦 ${item.type} - ${item.quantity} units (${item.category})</li>`;
-    }
-    reportBody += '</ul>';
-  }
-
-  if (report.reportType === 'produce') {
-    reportBody = '<ul>';
-    for (const key in reportData) {
-      const item = reportData[key];
-      reportBody += `<li>🌽 ${item.type} - ${item.quantity} harvested (${item.category})</li>`;
-    }
-    reportBody += '</ul>';
-  }
-
-  card.innerHTML = `
-    <div class="report-header">
-      <h3>${capitalize(report.reportType)} Report</h3>
-      <div>
-        <p>${new Date(report.dateCreated).toLocaleDateString()}</p>
-        <button class="btn-secondary" onclick='exportReportToPDF(${JSON.stringify(report)}, "${id}")'>Export PDF</button>
-        <button class="btn-danger" onclick='deleteReport("${id}")'>Delete</button>
-      </div>
-    </div>
-    <div class="report-body">
-      ${reportBody}
-      <canvas id="${chartId}" style="margin-top: 20px;"></canvas>
-    </div>
-  `;
-
-  // Add card to DOM
-  reportsContainer.appendChild(card);
-
-  // Wait until DOM is ready to draw chart
-  setTimeout(() => {
-    const ctx = document.getElementById(chartId)?.getContext('2d');
-    if (ctx) {
-      drawChart(ctx, report.reportType, reportData);
-    }
-  }, 50);
-
-  return card;
-}
-
-// Draw Mini Chart
-function drawChart(ctx, type, data) {
-  if (type === 'totalSales') {
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: Object.keys(data),
+        labels,
         datasets: [{
-          label: 'Revenue ($)',
-          data: Object.values(data).map(d => d.totalRevenue),
-          backgroundColor: 'rgba(75,192,192,0.6)',
-          borderColor: 'rgba(75,192,192,1)',
-          borderWidth: 2
+          label: type === 'sales' ? 'Sale Price ($)' : 'Total Revenue ($)',
+          data,
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
         }]
       },
-      options: { scales: { y: { beginAtZero: true } } }
-    });
-  }
-
-  if (type === 'sales') {
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: Object.values(data).map(d => new Date(d.saleDate).toLocaleDateString()),
-        datasets: [{
-          label: 'Quantity Sold',
-          data: Object.values(data).map(d => d.quantitySold),
-          borderColor: 'rgba(153,102,255,1)',
-          fill: false,
-          tension: 0.1
-        }]
-      },
-      options: { scales: { y: { beginAtZero: true } } }
-    });
-  }
-}
-
-// Export Report to PDF
-async function exportReportToPDF(report, id) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const reportData = JSON.parse(report.content);
-  let y = 10;
-
-  doc.setFontSize(18);
-  doc.text(`${capitalize(report.reportType)} Report`, 10, y);
-  y += 10;
-  doc.setFontSize(12);
-  doc.text(`Generated: ${new Date(report.dateCreated).toLocaleDateString()}`, 10, y);
-  y += 10;
-
-  if (report.reportType === 'sales') {
-    for (const key in reportData) {
-      const sale = reportData[key];
-      doc.text(`🛒 ${sale.produceType} - ${sale.quantitySold} units (${new Date(sale.saleDate).toLocaleDateString()})`, 10, y);
-      y += 7;
-    }
-  }
-
-  if (report.reportType === 'totalSales') {
-    for (const produce in reportData) {
-      const item = reportData[produce];
-      doc.text(`💰 ${produce}: ${item.quantitySold} sold, $${item.totalRevenue.toFixed(2)}`, 10, y);
-      y += 7;
-    }
-  }
-
-  if (report.reportType === 'inventory' || report.reportType === 'produce') {
-    for (const key in reportData) {
-      const item = reportData[key];
-      doc.text(`🌽 ${item.type} - ${item.quantity} units - ${item.category}`, 10, y);
-      y += 7;
-    }
-  }
-
-  doc.save(`${report.reportType}-report-${id}.pdf`);
-}
-
-// Filter Reports by Type
-function filterReports(type) {
-  const allReports = document.querySelectorAll('.report-card');
-  allReports.forEach(report => {
-    if (type === 'all' || report.dataset.type === type) {
-      report.style.display = 'block';
-    } else {
-      report.style.display = 'none';
-    }
-  });
-}
-
-
-// Capitalize Helper
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-window.filterReports = filterReports;
-window.exportReportToPDF = exportReportToPDF;
-window.showToast = showToast;
-window.deleteReport = async function (id) {
-  if (confirm("Are you sure you want to delete this report? This cannot be undone.")) {
-    const user = auth.currentUser;
-    if (!user) {
-      showToast("❌ You must be logged in to delete.", "error");
-      return;
-    }
-
-    try {
-      // Remove the report from the database
-      await remove(ref(database, `reports/${user.uid}/${id}`));
-
-      // Remove the report card from the DOM
-      const reportCard = document.querySelector(`.report-card[data-id="${id}"]`);
-      if (reportCard) {
-        reportCard.remove();
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
       }
+    });
+  } catch (error) {
+    console.error('Chart Error:', error);
+  }
+}
 
-      showToast("🗑️ Report deleted successfully!", "success");
-    } catch (error) {
-      console.error(error);
-      showToast("❌ Failed to delete report.", "error");
-    }
+// ----- Export Report to PDF -----
+window.exportReport = function(reportId) {
+  const element = document.getElementById(`report-${reportId}`);
+  html2pdf().from(element).save();
+};
+
+// ----- Delete Report Function -----
+window.deleteReport = async function(reportId) {
+  if (!confirm("Are you sure you want to delete this report?")) return;
+  try {
+    await remove(ref(database, `reports/${currentUserId}/${reportId}`));
+    showToast("🗑️ Report deleted successfully!");
+  } catch (error) {
+    console.error(error);
+    showToast("❌ Failed to delete report.");
   }
 };
 
+// ----- Filter Reports Function -----
+window.filterReports = function(type) {
+  const cards = document.querySelectorAll('.report-card');
+  cards.forEach(card => {
+    const title = card.querySelector('h3')?.textContent.toLowerCase();
+    if (!type || (title && title.includes(type.toLowerCase()))) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+};
+
+// ----- Generate Report -----
+async function generateReport(e) {
+  e.preventDefault();
+
+  if (!currentUserId) {
+    showToast("❌ User not authenticated.");
+    return;
+  }
+
+  const startDateValue = startDateInput.value;
+  const endDateValue = endDateInput.value;
+  const reportType = reportTypeInput.value;
+
+  let startDate, endDate;
+
+  // 💥 Patch: Force start and end dates if missing
+  if (!startDateValue || !endDateValue) {
+    const now = Date.now();
+    startDate = now;
+    endDate = now;
+  } else {
+    startDate = new Date(startDateValue).getTime();
+    endDate = new Date(endDateValue).getTime();
+  }
+
+  if (!reportType) {
+    showToast("❌ Please select a report type.");
+    return;
+  }
+
+  let content = '';
+
+  try {
+    if (reportType === 'sales' || reportType === 'totalSales') {
+      const salesSnapshot = await get(ref(database, `sales/${currentUserId}`));
+      if (salesSnapshot.exists()) {
+        const salesData = [];
+        salesSnapshot.forEach(childSnapshot => {
+          const sale = childSnapshot.val();
+          const saleDate = new Date(sale.saleDate).getTime();
+          if (saleDate >= startDate && saleDate <= endDate) {
+            salesData.push({
+              produceType: sale.produceType,
+              quantitySold: sale.quantitySold,
+              salePrice: sale.salePrice,
+              saleDate: saleDate
+            });
+          }
+        });
+        content = salesData.length > 0 ? JSON.stringify(salesData) : "<p>No sales data found.</p>";
+      } else {
+        content = "<p>No sales available.</p>";
+      }
+    }
+
+    if (reportType === 'inventory') {
+      const storageSnapshot = await get(ref(database, `users/${currentUserId}/storageLocations`));
+      if (storageSnapshot.exists()) {
+        let table = `<table><thead><tr><th>Name</th><th>Country</th><th>County</th></tr></thead><tbody>`;
+        storageSnapshot.forEach(childSnapshot => {
+          const storage = childSnapshot.val();
+          table += `<tr>
+            <td>${storage.storageName}</td>
+            <td>${storage.storageCountry}</td>
+            <td>${storage.storageCounty}</td>
+          </tr>`;
+        });
+        table += `</tbody></table>`;
+        content = table;
+      } else {
+        content = "<p>No storage locations available.</p>";
+      }
+    }
+
+    // 🔥 Log what we are trying to save
+    console.log("Attempting to push report:", {
+      reportType,
+      dateCreated: Date.now(),
+      dateRange: {
+        start: startDate,
+        end: endDate
+      },
+      content: content || "<p>No content generated.</p>"
+    });
+
+    // 🔥 Always safe fallback content
+    const reportData = {
+      reportType,
+      dateCreated: Date.now(),
+      dateRange: {
+        start: startDate,
+        end: endDate
+      },
+      content: content || "<p>No content generated.</p>"
+    };
+
+    await push(ref(database, `reports/${currentUserId}`), reportData);
+
+    showToast("✅ Report generated!");
+    reportForm.reset();
+    reportModal.classList.add('hidden');
+
+    setTimeout(() => {
+      loadSavedReports(currentUserId);
+    }, 500);
+
+  } catch (error) {
+    console.error("Error generating report:", error);
+    showToast("❌ Failed to generate report.");
+  }
+}
+
+// ----- Authentication & Form Attachment -----
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "Login.html";
+    return;
+  }
+  currentUserId = user.uid;
+  loadSavedReports(currentUserId);
+  
+  // Attach form listener now that user is authenticated
+  if (reportForm) {
+    reportForm.addEventListener('submit', generateReport);
+  }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('report-form');
+  if (form) {
+    form.addEventListener('submit', generateReport);
+    console.log('✅ Form listener attached!');
+  } else {
+    console.log('❌ Form not found');
+  }
+});
