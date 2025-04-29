@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const notificationsRef = ref(database, `notifications/${userId}`);
     notificationsList.innerHTML = "<p>Loading notifications...</p>";
 
-    // 🔥 Listen in real-time
+    //  Listen in real-time
     onValue(notificationsRef, (snapshot) => {
       notificationsList.innerHTML = ""; // Clear spinner
 
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <h2>${notif.subject}</h2>
           <p>${notif.message}</p>
           <p><strong>Scheduled for:</strong> ${new Date(notif.timestamp).toLocaleDateString()}</p>
-          <button class="btn-secondary" data-notif-id="${notif.id}">✅ Mark as Done</button>
+          <button class="btn-secondary" data-notif-id="${notif.id}">✅ Mark as Read</button>
         `;
 
         notificationsList.appendChild(li);

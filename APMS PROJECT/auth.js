@@ -1,5 +1,5 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 import { app } from "./firebaseconnection.js"; // Import the initialized Firebase app
 
 const auth = getAuth(app);
@@ -16,7 +16,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Handle Registration
-export async function registerUser({ name, phone, email, password, country, county, farmName, farmSize, cropType }) {
+export async function registerUser({ name, phone, email, password, country, county }) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const userId = userCredential.user.uid;
@@ -30,19 +30,6 @@ export async function registerUser({ name, phone, email, password, country, coun
       country,
       county,
     });
-
-    // Save optional farm details if provided
-    if (farmName && farmSize && cropType) {
-      const farmRef = push(ref(database, `farms`));
-      await set(farmRef, {
-        userId,
-        farmName,
-        country,
-        county,
-        farmSize,
-        cropType,
-      });
-    }
 
     alert("Registration successful!");
     window.location.href = "Login.html"; // Redirect to login page
@@ -104,6 +91,4 @@ onAuthStateChanged(auth, async (user) => {
   if (!user && !["/Login.html", "/Register.html"].includes(currentPath)) {
     window.location.replace("Login.html");
   }
-
-
 });
