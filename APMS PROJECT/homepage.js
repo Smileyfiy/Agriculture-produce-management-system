@@ -1,6 +1,7 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 import { app } from './firebaseconnection.js';
+import { weatherApiKey} from './apikeys.js';
 
 const auth = getAuth(app);
 const database = getDatabase(app);
@@ -27,7 +28,7 @@ function showToast(message) {
 // Weather Loading
 function loadWeather(city = "Nairobi") {
   weatherDiv.textContent = "Loading Weather...";
-  const apiKey = "30136c7016c19d7c941ec78818890eaf"
+  const apiKey = weatherApiKey;
   fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
     .then(res => res.json())
     .then(data => {
